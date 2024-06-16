@@ -56,7 +56,6 @@ const Geo = () => {
               <p>
                 Your location: Lat {location.latitude}, Lon {location.longitude}
               </p>
-              {/* Pass location to Radius component */}
               <Radius
                 latitude={location.latitude}
                 longitude={location.longitude}
