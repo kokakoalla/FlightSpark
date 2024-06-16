@@ -7,7 +7,7 @@ const Geo = () => {
 
   useEffect(() => {
     if ("geolocation" in navigator) {
-      // Geo support
+      // Geo support?
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // Geo success
