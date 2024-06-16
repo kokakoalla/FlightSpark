@@ -7,7 +7,7 @@ const Geo = () => {
 
   useEffect(() => {
     if ("geolocation" in navigator) {
-      // Geo support
+      // Geo support?
       navigator.geolocation.getCurrentPosition(
         (position) => {
           // Geo success
@@ -56,7 +56,6 @@ const Geo = () => {
               <p>
                 Your location: Lat {location.latitude}, Lon {location.longitude}
               </p>
-              {/* Pass location to Radius component */}
               <Radius
                 latitude={location.latitude}
                 longitude={location.longitude}

@@ -46,7 +46,7 @@ const Radius = ({ latitude, longitude }) => {
         {Array.isArray(searchHistory) &&
           searchHistory.map((entry, index) => (
             <li key={index}>
-              <h3>Entry {index + 1}</h3>
+              <h3>Flight {index + 1}</h3>
               <ul>
                 {Object.entries(entry).map(([key, value]) => (
                   <li key={key}>

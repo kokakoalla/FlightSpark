@@ -68,7 +68,7 @@ def receive_location():
                 cur = con.cursor()
 
                 query = '''  
-                SELECT "from_city", "to_city", "price", "url", "local_arrival", "local_departure" FROM 
+                SELECT "from_city", "to_city", "price", "local_arrival", "local_departure" FROM 
                 "search_history" WHERE "from_id" = ? ORDER BY "date_time" DESC LIMIT 3;
                 '''
 
@@ -82,7 +82,7 @@ def receive_location():
                         'cityFrom': result[0],
                         'cityTo': result[1],
                         'price': result[2],
-                        'deep_link': result[3],
+                        'local_arrival': result[3],
      #                   'local_arrival': result[4],
       #                  'local_departure': result[5]
                     }
