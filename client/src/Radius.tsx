@@ -19,8 +19,8 @@ const Radius = ({ latitude, longitude }) => {
       setSearchHistory(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching search history:", error);
-      setError("Failed to fetch search history. Please try again.");
+      console.error("error fetching search history:", error);
+      setError("failed to fetch search history.");
       setLoading(false);
     }
   };
