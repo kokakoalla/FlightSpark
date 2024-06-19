@@ -1,7 +1,13 @@
 import sqlite3
 import os
+from dotenv import load_dotenv
+import psycopg2
+
+
+load_dotenv()
+
 
 def get_db_connection():
-    db_path = os.path.join(os.path.dirname(__file__), '..', 'my_app.db')
-    conn = sqlite3.connect(db_path, check_same_thread=False)
+    db_url = os.getenv('DATABASE_URL')
+    conn = psycopg2.connect(db_url)
     return conn

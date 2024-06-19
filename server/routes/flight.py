@@ -4,6 +4,7 @@ from .config import Config
 from .db import get_db_connection
 import time
 import sqlite3
+import psycopg2
 
 flight_bp = Blueprint('flight', __name__)
 
@@ -55,31 +56,21 @@ def get_flights():
             }
             res.append(formatted_data)
 
-            insert_query = '''
-            INSERT INTO "search_history" ("from_city", "to_city", "price",
-             "date_time", "url", "from_id", "to_id", "local_arrival", "local_departure", "stopovers")
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            '''
-            values_to_insert = (
-                formatted_data['from'],
-                formatted_data['to'],
-                formatted_data['price'],
-                int(time.time()),  # current time in seconds
-                formatted_data['url'],
-                formatted_data['from_id'],
-                formatted_data['to_id'],
-                formatted_data['arrival'],
-                formatted_data['departure'],
-                formatted_data['stopovers']
-            )
-            cur.execute(insert_query, values_to_insert)
+        cur.execute('''
+            INSERT INTO search_history (from_city, to_city, price, date_time, url, from_id, to_id, local_arrival, local_departure, stopovers)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (
+            formatted_data['from'], formatted_data['to'], formatted_data['price'], int(time.time()), formatted_data['url'],
+            formatted_data['from_id'], formatted_data['to_id'], formatted_data['arrival'], formatted_data['departure'], formatted_data['stopovers']
+        ))
 
-    con.commit()
-    con.close()
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
     return jsonify(response.json())
 
 
 
 
-    return jsonify(res)
