@@ -40,9 +40,9 @@ async def receive_location():
                 params={
                     'lat': latitude,
                     'lon': longitude,
-                    'radius': 50,
+                    'radius': 250,
                     'locale': 'en-US',
-                    'location_types': 'city',
+                    'location_types': 'airport',
                     'limit': 1
                 },
                 headers={'apikey': Config.API_KEY}
