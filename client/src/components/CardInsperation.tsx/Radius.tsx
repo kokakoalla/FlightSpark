@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Card from "./Card"; 
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -19,8 +20,8 @@ const Radius = ({ latitude, longitude }) => {
       setSearchHistory(response.data);
       setLoading(false);
     } catch (error) {
-      console.error("error fetching search history:", error);
-      setError("failed to fetch search history.");
+      console.error("Error fetching search history:", error);
+      setError("Failed to fetch search history.");
       setLoading(false);
     }
   };
@@ -29,7 +30,7 @@ const Radius = ({ latitude, longitude }) => {
     if (latitude && longitude) {
       fetchSearchHistory();
     }
-  }, []);
+  }, [latitude, longitude]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -42,22 +43,18 @@ const Radius = ({ latitude, longitude }) => {
   return (
     <div>
       <h1>Search History</h1>
-      <ul>
+      <div className="flex flex-wrap gap-16">
         {Array.isArray(searchHistory) &&
           searchHistory.map((entry, index) => (
-            <li key={index}>
-              <h3>Flight {index + 1}</h3>
-              <ul>
-                {Object.entries(entry).map(([key, value]) => (
-                  <li key={key}>
-                    <strong>{key}: </strong>
-                    {value}
-                  </li>
-                ))}
-              </ul>
-            </li>
+            <Card
+              key={index}
+              price={entry.price}
+              deepLink={entry.deep_link}
+              from={entry.cityFrom}
+              to={entry.cityTo}
+            />
           ))}
-      </ul>
+      </div>
     </div>
   );
 };

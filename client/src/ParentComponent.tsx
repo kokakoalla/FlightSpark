@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import GeoLocationComponent from "./Geo";
-import Radius from "./Radius";
+import GeoLocationComponent from "./components/CardInsperation.tsx/Geo";
+import Radius from "./components/CardInsperation.tsx/Radius";
 
 const App = () => {
   const [location, setLocation] = useState({ latitude: null, longitude: null });

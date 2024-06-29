@@ -27,9 +27,9 @@ const SearchForm: React.FC<SearchFormProps> = ({
   onDateChange,
   onSearch,
 }) => (
-  <div className="flex justify-between items-center border border-gray-300 rounded-lg p-14">
+  <div className="flex flex-wrap items-center border border-gray-300 rounded-lg p-14">
     <Autocomplete
-      className="w-1/4 p-4"
+      // className="w-1/4 p-4"
       freeSolo
       value={fromCity}
       onChange={(_, newValue) => onFromCityChange(newValue || "")}
@@ -44,7 +44,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
       )}
     />
     <Autocomplete
-      className="w-1/4 p-4"
+      // className="w-1/4 p-4"
       freeSolo
       value={toCity}
       onChange={(_, newValue) => onToCityChange(newValue || "")}
