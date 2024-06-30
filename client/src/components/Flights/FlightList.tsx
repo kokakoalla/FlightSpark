@@ -1,5 +1,5 @@
 import React from "react";
-import FlightCard from "./Card/Card";
+import FlightCard from "../Card/Card";
 
 interface Flight {
   local_departure: string;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import SearchForm from "./components/SearchForm";
-import FlightList from "./components/FlightList";
+import SearchForm from "./SearchForm";
+import FlightList from "./FlightList";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
