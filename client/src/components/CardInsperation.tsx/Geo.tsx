@@ -46,16 +46,16 @@ const Geo = () => {
 
   return (
     <div>
-      <h1>GeoLocation Example</h1>
+      {/* <h1>GeoLocation Example</h1> */}
       {error ? (
         <p>{error}</p>
       ) : (
         <>
           {location.latitude && location.longitude ? (
             <>
-              <p>
+              {/* <p>
                 Your location: Lat {location.latitude}, Lon {location.longitude}
-              </p>
+              </p> */}
               <Radius
                 latitude={location.latitude}
                 longitude={location.longitude}

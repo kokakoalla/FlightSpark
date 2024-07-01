@@ -9,6 +9,9 @@ type CardProps = {
   price: number;
   local_departure: string;
   local_arrival: string;
+  cityFrom: string;
+  cityTo: string;
+  airlines: string;
 };
 
 const formatTime = (dateString: string) => {
@@ -20,27 +23,41 @@ const Card = ({
   title,
   paragraph,
   deep_link,
+  cityFrom,
+  cityTo,
+  airlines,
   price,
   local_departure,
   local_arrival,
 }: CardProps) => (
-  <div className="flex flex-nowrap items-center justify-center p-1">
-    <div className="w-96 h-48 border border-gray-300 p-4 rounded-md mr-4">
-      <h2 className="text-lg font-semibold">
-        {`${formatTime(local_departure)} - ${formatTime(local_arrival)}`}
-      </h2>
-      <p>{paragraph}</p>
-    </div>
-    <div className="w-52 h-48 border border-gray-300 p-4 rounded-md flex flex-col justify-center items-center">
-      <h2 className="text-lg font-semibold text-center mb-4">{title} €</h2>
-      <Button
-        className="mt-4"
-        variant="contained"
-        href={deep_link}
-        target="_blank"
-      >
-        Buy
-      </Button>
+  <div className="max-w-3xl mx-auto my-9 bg-white py shadow-md rounded-lg overflow-hidden">
+    <div className="flex items-center justify-between px-4 py-7 border-b">
+      <div className="text-lg font-bold text-blue-600">{airlines}</div>
+      <div className="flex space-x-4">
+        <div className="flex flex-col items-center">
+          <div className="text-2xl"> {`${formatTime(local_departure)}`}</div>
+          <div className="text-gray-600">{cityFrom}</div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="text-sm text-gray-600">2 t 55 min</div>
+          <div className="text-gray-600">Suora</div>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="text-2xl">{`${formatTime(local_arrival)}`}</div>
+          <div className="text-gray-600">{cityTo}</div>
+        </div>
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="text-2xl text-gray-900">{price} €</div>
+        <Button
+          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          variant="contained"
+          href={deep_link}
+          target="_blank"
+        >
+          Valitse ➔
+        </Button>
+      </div>
     </div>
   </div>
 );

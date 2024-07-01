@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Card from "./Card"; 
+import Card from "./Card";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -41,9 +41,11 @@ const Radius = ({ latitude, longitude }) => {
   }
 
   return (
-    <div>
-      <h1>Search History</h1>
-      <div className="flex flex-wrap gap-16">
+    <div className="container mx-auto">
+      <h1 className="text-center text-2xl font-bold mb-4">
+        Inspiration Fly
+      </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.isArray(searchHistory) &&
           searchHistory.map((entry, index) => (
             <Card

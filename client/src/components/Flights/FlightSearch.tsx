@@ -107,7 +107,7 @@ const FlightSearch: React.FC = () => {
 
   return (
     <div>
-      <h1>Flight Search</h1>
+      {/* <h1>Flight Search</h1> */}
       <SearchForm
         fromCity={fromCity}
         toCity={toCity}
