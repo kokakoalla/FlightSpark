@@ -11,6 +11,9 @@ async def get_flights():
         from_city = request.args.get('from')
         to_city = request.args.get('to')
         date = request.args.get('date')
+        dateBack = request.args.get('dateBack')
+        adults = request.args.get('adults')
+
 
         if not from_city or not to_city or not date:
             return jsonify({'error': 'Please provide from_city, to_city, and date parameters'}), 400
@@ -23,6 +26,9 @@ async def get_flights():
                                            'fly_to': to_city,
                                            'date_from': date,
                                            'date_to': date,
+                                            'return_from': dateBack,
+                                            'return_to': dateBack,
+                                             'adults': adults,
                                            'max_stopovers': '2',
                                        },
                                        headers={'apikey': Config.API_KEY, 'Content-Type': 'application/json'}) as response:

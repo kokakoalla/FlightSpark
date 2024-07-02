@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import SearchForm from "./SearchForm";
 import FlightList from "./FlightList";
@@ -22,19 +22,20 @@ const FlightSearch: React.FC = () => {
   const [fromCity, setFromCity] = useState<string>("");
   const [toCity, setToCity] = useState<string>("");
   const [date, setDate] = useState<string>("");
+  const [dateBack, setDateBack] = useState<string>("");
+  const [adults, setAdults] = useState<number>(1);
   const [fromCityOptions, setFromCityOptions] = useState<string[]>([]);
   const [toCityOptions, setToCityOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [flights, setFlights] = useState<Flight[]>([]);
 
-  useEffect(() => {}, []);
-
-  useEffect(() => {
-    const fetchCities = async (
-      term: string,
-      setter: (options: string[]) => void
-    ) => {
+  const fetchCities = useCallback(
+    async (term: string, setter: (options: string[]) => void) => {
+      if (term.length < 3) {
+        setter([]);
+        return;
+      }
       try {
         const response = await axios.get<LocationResponse>(
           `${API_BASE_URL}/locations`,
@@ -42,23 +43,24 @@ const FlightSearch: React.FC = () => {
         );
         setter(response.data.locations.map((location) => location.name));
       } catch (error) {
-        console.error("error fetching location data:", error);
-        // setError("failed to fetch location data. .");
+        console.error("Error fetching location data:", error);
+        setError("Failed to fetch location data.");
       } finally {
         setLoading(false);
       }
-    };
+    },
+    []
+  );
 
-    if (fromCity) {
-      setLoading(true);
-      fetchCities(fromCity, setFromCityOptions);
-    }
+  useEffect(() => {
+    setLoading(true);
+    fetchCities(fromCity, setFromCityOptions);
+  }, [fromCity, fetchCities]);
 
-    if (toCity) {
-      setLoading(true);
-      fetchCities(toCity, setToCityOptions);
-    }
-  }, [fromCity, toCity]);
+  useEffect(() => {
+    setLoading(true);
+    fetchCities(toCity, setToCityOptions);
+  }, [toCity, fetchCities]);
 
   const handleSearch = async () => {
     setError(null);
@@ -88,12 +90,14 @@ const FlightSearch: React.FC = () => {
           from: fromCityCode,
           to: toCityCode,
           date: date,
+          dateBack: dateBack,
+          adults: adults,
         },
       });
 
       const flightsWithDeeplink = response.data.data.map((flight: any) => ({
         ...flight,
-        deep_link: `https://www.kiwi.com/deep?affilid=flyfindflyfind&currency=EUR&flightsId=${flight.id}&from=${fromCityCode}&lang=en&passengers=1&to=${toCityCode}&booking_token=${flight.booking_token}`,
+        deep_link: `https://www.kiwi.com/deep?affilid=flyfindflyfind&currency=EUR&flightsId=${flight.id}&from=${fromCityCode}&lang=en&passengers=${adults}&to=${toCityCode}&booking_token=${flight.booking_token}`,
       }));
 
       setFlights(flightsWithDeeplink);
@@ -107,17 +111,20 @@ const FlightSearch: React.FC = () => {
 
   return (
     <div>
-      {/* <h1>Flight Search</h1> */}
       <SearchForm
         fromCity={fromCity}
         toCity={toCity}
         date={date}
+        dateBack={dateBack}
+        adults={adults}
         fromCityOptions={fromCityOptions}
         toCityOptions={toCityOptions}
         loading={loading}
         onFromCityChange={setFromCity}
         onToCityChange={setToCity}
         onDateChange={setDate}
+        onDateBackChange={setDateBack}
+        onAdultsChange={setAdults}
         onSearch={handleSearch}
       />
       {error && <p style={{ color: "red" }}>{error}</p>}

@@ -6,12 +6,16 @@ interface SearchFormProps {
   fromCity: string;
   toCity: string;
   date: string;
+  dateBack: string;
+  adults: number;
   fromCityOptions: string[];
   toCityOptions: string[];
   loading: boolean;
   onFromCityChange: (city: string) => void;
   onToCityChange: (city: string) => void;
   onDateChange: (date: string) => void;
+  onDateBackChange: (date: string) => void;
+  onAdultsChange: (adults: number) => void;
   onSearch: () => void;
 }
 
@@ -22,9 +26,13 @@ const SearchForm: React.FC<SearchFormProps> = ({
   fromCityOptions,
   toCityOptions,
   loading,
+  dateBack,
+  adults,
   onFromCityChange,
   onToCityChange,
   onDateChange,
+  onDateBackChange,
+  onAdultsChange,
   onSearch,
 }) => (
   <div className="flex justify-center items-center h-1/2 bg-primary">
@@ -70,6 +78,30 @@ const SearchForm: React.FC<SearchFormProps> = ({
           type="date"
           value={date}
           onChange={(event) => onDateChange(event.target.value)}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </div>
+      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+        <TextField
+          className="w-full"
+          label="Date to"
+          type="date"
+          value={dateBack}
+          onChange={(event) => onDateBackChange(event.target.value)}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </div>
+      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+        <TextField
+          className="w-full"
+          label="Adults"
+          type="number"
+          value={adults}
+          onChange={(event) => onAdultsChange(Number(event.target.value))}
           InputLabelProps={{
             shrink: true,
           }}
