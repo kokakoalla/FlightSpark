@@ -1,65 +1,125 @@
 import React from "react";
-import Button from "@mui/material/Button"; 
-import { format } from "date-fns"; 
+import Button from "@mui/material/Button";
 
-type CardProps = {
-  title: string;
-  paragraph: string;
-  deep_link: string;
+interface Route {
+  airline: string;
+  flight_no?: string; // Some flights might not have a flight number
+  from: string;
+  to: string;
+  departure: string;
+  arrival: string;
+}
+
+interface CardProps {
   price: number;
-  local_departure: string;
-  local_arrival: string;
-  cityFrom: string;
-  cityTo: string;
-  airlines: string;
-};
+  url: string;
+  fromCity: string;
+  toCity: string;
+  outboundRoutes: Route[];
+  returnRoutes: Route[];
+}
 
 const formatTime = (dateString: string) => {
   const date = new Date(dateString);
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("en-GB", {
+    timeZone: "UTC",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("ru-EN", {
+    timeZone: "UTC",
+    day: "2-digit",
+    month: "2-digit",
+  });
 };
 
-const Card = ({
-  title,
-  paragraph,
-  deep_link,
-  cityFrom,
-  cityTo,
-  airlines,
+const FlightCard: React.FC<CardProps> = ({
   price,
-  local_departure,
-  local_arrival,
-}: CardProps) => (
-  <div className="max-w-3xl mx-auto my-9 bg-white py shadow-md rounded-lg overflow-hidden">
-    <div className="flex items-center justify-between px-4 py-7 border-b">
-      <div className="text-lg font-bold text-blue-600">{airlines}</div>
-      <div className="flex space-x-4">
-        <div className="flex flex-col items-center">
-          <div className="text-2xl"> {`${formatTime(local_departure)}`}</div>
-          <div className="text-gray-600">{cityFrom}</div>
+  url,
+  fromCity,
+  toCity,
+  outboundRoutes,
+  returnRoutes,
+}) => {
+  const outboundDeparture = outboundRoutes[0].departure;
+  const outboundArrival = outboundRoutes[outboundRoutes.length - 1].arrival;
+  const returnDeparture =
+    returnRoutes.length > 0 ? returnRoutes[0].departure : null;
+  const returnArrival =
+    returnRoutes.length > 0
+      ? returnRoutes[returnRoutes.length - 1].arrival
+      : null;
+
+  return (
+    <div className="max-w-3xl mx-auto my-9 bg-white py shadow-md rounded-lg overflow-hidden">
+      <div className="flex justify-between items-center px-4 py-7 border-b">
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex space-x-4">
+              <div className="flex flex-col items-center">
+                <div className="text-2xl">{formatTime(outboundDeparture)}</div>
+
+                <div className="text-gray-600">{fromCity}</div>
+                <div className="text-base">{formatDate(outboundDeparture)}</div>
+              </div>
+              <div className="flex flex-col items-center ">
+                <div className="text-sm text-gray-600">
+                  {outboundRoutes.length > 1
+                    ? `${outboundRoutes.length - 1} stop`
+                    : "Direct"}
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-2xl">{formatTime(outboundArrival)}</div>
+
+                <div className="text-gray-600">{toCity}</div>
+                <div className="text-base">{formatDate(outboundArrival)}</div>
+              </div>
+            </div>
+          </div>
+          {returnRoutes.length > 0 && (
+            <>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex space-x-4">
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl">
+                      {formatTime(returnDeparture)}
+                    </div>
+                    <div className="text-gray-600">{toCity}</div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="text-sm text-gray-600">
+                      {returnRoutes.length > 1
+                        ? `${returnRoutes.length - 1} stop`
+                        : "Direct"}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <div className="text-2xl">{formatTime(returnArrival)}</div>
+                    <div className="text-gray-600">{fromCity}</div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <div className="flex flex-col items-center">
-          <div className="text-sm text-gray-600">2 t 55 min</div>
-          <div className="text-gray-600">Suora</div>
+          <div className="text-2xl text-gray-900 mb-4">{price} €</div>
+          <Button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            variant="contained"
+            href={url}
+            target="_blank"
+          >
+            Valitse
+          </Button>
         </div>
-        <div className="flex flex-col items-center">
-          <div className="text-2xl">{`${formatTime(local_arrival)}`}</div>
-          <div className="text-gray-600">{cityTo}</div>
-        </div>
-      </div>
-      <div className="flex flex-col items-center">
-        <div className="text-2xl text-gray-900">{price} €</div>
-        <Button
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          variant="contained"
-          href={deep_link}
-          target="_blank"
-        >
-          Valitse ➔
-        </Button>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-export default Card;
+export default FlightCard;

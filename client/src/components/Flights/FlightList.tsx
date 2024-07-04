@@ -1,16 +1,30 @@
 import React from "react";
 import FlightCard from "../Card/Card";
 
+interface Route {
+  airline: string;
+  flight_no: string;
+  from: string;
+  to: string;
+  departure: string;
+  arrival: string;
+}
+
 interface Flight {
-  local_departure: string;
-  local_arrival: string;
   price: number;
-  deep_link: string;
-  cityFrom: string;
-  cityTo: string;
-  fromId: string;
-  toId: string;
-  airlines: string;
+  url: string;
+  from: {
+    city: string;
+    city_code: string;
+    country: string;
+  };
+  to: {
+    city: string;
+    city_code: string;
+    country: string;
+  };
+  outbound_routes: Route[];
+  return_routes: Route[];
 }
 
 interface FlightListProps {
@@ -23,15 +37,12 @@ const FlightList: React.FC<FlightListProps> = ({ flights }) => (
       flights.map((flight, index) => (
         <div key={index}>
           <FlightCard
-            price={flight.price.toString()}
-            paragraph={flight.cityFrom + " - " + flight.cityTo}
-            local_departure={flight.local_departure}
-            local_arrival={flight.local_arrival}
-            deep_link={flight.deep_link}
-            cityFrom={flight.cityFrom}
-            cityTo={flight.cityTo}
-            airlines={flight.airlines[0]}
-
+            price={flight.price}
+            url={flight.url}
+            fromCity={flight.from.city}
+            toCity={flight.to.city}
+            outboundRoutes={flight.outbound_routes}
+            returnRoutes={flight.return_routes}
           />
         </div>
       ))}

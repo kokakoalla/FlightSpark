@@ -9,13 +9,30 @@ interface LocationResponse {
   locations: { code: string; name: string; country: { name: string } }[];
 }
 
+interface Route {
+  airline: string;
+  flight_no: string;
+  from: string;
+  to: string;
+  departure: string;
+  arrival: string;
+}
+
 interface Flight {
-  local_departure: string;
-  local_arrival: string;
   price: number;
-  deep_link: string;
-  cityFrom: string;
-  cityTo: string;
+  url: string;
+  from: {
+    city: string;
+    city_code: string;
+    country: string;
+  };
+  to: {
+    city: string;
+    city_code: string;
+    country: string;
+  };
+  outbound_routes: Route[];
+  return_routes: Route[];
 }
 
 const FlightSearch: React.FC = () => {
@@ -95,12 +112,7 @@ const FlightSearch: React.FC = () => {
         },
       });
 
-      const flightsWithDeeplink = response.data.data.map((flight: any) => ({
-        ...flight,
-        deep_link: `https://www.kiwi.com/deep?affilid=flyfindflyfind&currency=EUR&flightsId=${flight.id}&from=${fromCityCode}&lang=en&passengers=${adults}&to=${toCityCode}&booking_token=${flight.booking_token}`,
-      }));
-
-      setFlights(flightsWithDeeplink);
+      setFlights(response.data);
     } catch (error) {
       console.error("Error fetching flights:", error);
       setError("Failed to fetch flights. Please try again.");
