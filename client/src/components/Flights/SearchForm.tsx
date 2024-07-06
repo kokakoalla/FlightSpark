@@ -36,8 +36,8 @@ const SearchForm: React.FC<SearchFormProps> = ({
   onSearch,
 }) => (
   <div className="flex justify-center items-center h-1/2 bg-primary">
-    <div className="flex flex-wrap md:flex-nowrap space-x-2 bg-white p-4 rounded-lg shadow-lg my-10 ">
-      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+    <div className="flex flex-wrap space-x-2 bg-white/30 p-4 rounded-lg shadow-lg my-10 ">
+      <div className="flex-1 w-40 mt-4 md:mt-0">
         <Autocomplete
           className="w-full"
           freeSolo
@@ -54,7 +54,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
           )}
         />
       </div>
-      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+      <div className="flex-1 w-40 mt-4 md:mt-0">
         <Autocomplete
           className="w-full"
           freeSolo
@@ -71,7 +71,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
           )}
         />
       </div>
-      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+      <div className="flex-1 w-40 mt-4 md:mt-0">
         <TextField
           className="w-full"
           label="Date from"
@@ -83,7 +83,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
           }}
         />
       </div>
-      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+      <div className="flex-1 w-40 mt-4 md:mt-0">
         <TextField
           className="w-full"
           label="Date to"
@@ -95,7 +95,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
           }}
         />
       </div>
-      <div className="flex-1 min-w-[200px] mt-4 md:mt-0">
+      <div className="flex-1 w-40 mt-4 md:mt-0">
         <TextField
           className="w-full"
           label="Adults"

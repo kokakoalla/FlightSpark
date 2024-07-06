@@ -1,9 +1,10 @@
+// Tämä on FlightSearch-komponentti, joka luo lentojen hakukentän
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import SearchForm from "./SearchForm";
 import FlightList from "./FlightList";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:5000/api"; //Määritellään API_BASE_URL, joka on http://localhost:5000/api
 
 interface LocationResponse {
   locations: { code: string; name: string; country: { name: string } }[];
@@ -47,37 +48,35 @@ const FlightSearch: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [flights, setFlights] = useState<Flight[]>([]);
 
-  const fetchCities = useCallback(
-    async (term: string, setter: (options: string[]) => void) => {
-      if (term.length < 3) {
-        setter([]);
-        return;
+  const fetchCities = useCallback(        // Määritellään fetchCities-funktio, joka hakee kaupunkien tiedot
+    async (term: string, setter: (options: string[]) => void) => {  //
+      if (term.length > 2) {
+        try {
+          const response = await axios.get<LocationResponse>(
+            `${API_BASE_URL}/locations`,
+            { params: { term } }
+          );
+          setter(response.data.locations.map((location) => location.name));
+        } catch (error) {
+          console.error("Error fetching location data:", error);
+          setError("Failed to fetch location data.");
+        }
       }
-      try {
-        const response = await axios.get<LocationResponse>(
-          `${API_BASE_URL}/locations`,
-          { params: { term } }
-        );
-        setter(response.data.locations.map((location) => location.name));
-      } catch (error) {
-        console.error("Error fetching location data:", error);
-        setError("Failed to fetch location data.");
-      } finally {
-        setLoading(false);
-      }
+      setLoading(false);
     },
     []
   );
 
   useEffect(() => {
     setLoading(true);
+
     fetchCities(fromCity, setFromCityOptions);
-  }, [fromCity, fetchCities]);
+  }, [fromCity]);
 
   useEffect(() => {
     setLoading(true);
     fetchCities(toCity, setToCityOptions);
-  }, [toCity, fetchCities]);
+  }, [toCity]);
 
   const handleSearch = async () => {
     setError(null);

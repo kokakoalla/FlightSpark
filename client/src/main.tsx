@@ -7,6 +7,7 @@ import Geo from "./components/CardInsperation.tsx/Geo.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
+    <div className="logo w-full text-center">FlightSpark</div>
     <FlightSearch />
     <Geo />
 

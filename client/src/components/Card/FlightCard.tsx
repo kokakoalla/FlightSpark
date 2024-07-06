@@ -1,16 +1,15 @@
-import React from "react";
-import Button from "@mui/material/Button";
+// Kuvaus: Tämä komponentti luo lentojen korttin
+import React from "react"; // Tuodaan React käyttöön
+import Button from "@mui/material/Button"; // Tuodaan Button-komponentti Material-UI kirjastosta
 
-interface Route {
+interface Route { // Määritellään Route-interface, joka kuvaa Route-tyyppistä dataa
   airline: string;
-  flight_no?: string; // Some flights might not have a flight number
-  from: string;
   to: string;
   departure: string;
   arrival: string;
 }
 
-interface CardProps {
+interface CardProps { // Määritellään CardProps-interface, joka kuvaa CardProps-tyyppistä dataa
   price: number;
   url: string;
   fromCity: string;
@@ -19,7 +18,7 @@ interface CardProps {
   returnRoutes: Route[];
 }
 
-const formatTime = (dateString: string) => {
+const formatTime = (dateString: string) => { //Määritellään formatTime-funktio, joka muuttaa aikaleiman muotoon hh:mm
   const date = new Date(dateString);
   return date.toLocaleTimeString("en-GB", {
     timeZone: "UTC",
@@ -27,7 +26,7 @@ const formatTime = (dateString: string) => {
     minute: "2-digit",
   });
 };
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string) => { //Määritellään formatDate-funktio, joka muuttaa päivämäärän muotoon dd.mm
   const date = new Date(dateString);
   return date.toLocaleDateString("ru-EN", {
     timeZone: "UTC",
@@ -36,7 +35,7 @@ const formatDate = (dateString: string) => {
   });
 };
 
-const FlightCard: React.FC<CardProps> = ({
+const FlightCard: React.FC<CardProps> = ({ //Määritellään FlightCard-komponentti, joka saa propsina CardProps-tyyppistä dataa
   price,
   url,
   fromCity,
@@ -55,7 +54,11 @@ const FlightCard: React.FC<CardProps> = ({
 
   return (
     <div className="max-w-3xl mx-auto my-9 bg-white py shadow-md rounded-lg overflow-hidden">
-      <div className="flex justify-between items-center px-4 py-7 border-b">
+      <div
+        className={`flex justify-around items-center px-4 py-7
+        bg-gradient-to-tr 
+        from-sky-200 to-sky-300 bg-opacity-20 shadow-2xl`}
+      >
         <div>
           <div className="flex items-center justify-between mb-4">
             <div className="flex space-x-4">
@@ -122,4 +125,4 @@ const FlightCard: React.FC<CardProps> = ({
   );
 };
 
-export default FlightCard;
+export default FlightCard; // Viedään FlightCard-komponentti exportattavaksi Flightlist.tsx-tiedostoon

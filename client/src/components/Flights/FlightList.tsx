@@ -1,7 +1,8 @@
+// Tämä on FlightList-komponentti, joka luo lentojen listan
 import React from "react";
-import FlightCard from "../Card/Card";
+import FlightCard from "../Card/FlightCard";
 
-interface Route {
+interface Route { //Määritellään Route-interface, joka kuvaa Route-tyyppistä dataa
   airline: string;
   flight_no: string;
   from: string;
@@ -31,13 +32,13 @@ interface FlightListProps {
   flights: Flight[];
 }
 
-const FlightList: React.FC<FlightListProps> = ({ flights }) => (
+const FlightList: React.FC<FlightListProps> = ({ flights }) => ( //Määritellään FlightList-komponentti, joka saa propsina FlightListProps-tyyppistä dataa
   <div className="py-14">
-    {flights.length > 0 &&
-      flights.map((flight, index) => (
+    {flights.length > 0 && //Jos flight listassao n on enemmän kuin 0, niin käydään läpi jokainen lento ja luodaan niistä FlightCard-komponentti
+      flights.map((flight, index) => ( //Käydään läpi jokainen lento ja luodaan niistä FlightCard-komponentti
         <div key={index}>
-          <FlightCard
-            price={flight.price}
+          <FlightCard  //Kutsutaan FlightCard-komponentti ja annetaan sille propsina Flight-tyyppistä dataa
+            price={flight.price} //propsina annetaan lentojen hinta
             url={flight.url}
             fromCity={flight.from.city}
             toCity={flight.to.city}
