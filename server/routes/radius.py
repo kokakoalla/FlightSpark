@@ -1,11 +1,11 @@
 from quart import Blueprint, request, jsonify #Tuodaan tarvittavat moduulit 
 import aiohttp #Tuodaan aiohttp-moduuli
-from .config import Config  #Tuodaan Config-luokka config-moduulista
-import asyncpg  #Tuodaan asyncpg-moduuli
-import datetime     #Tuodaan datetime-moduuli
-import time     #Tuodaan time-moduuli
-from .database import get_database_connection #Tuodaan get_database_connection-funktio database-moduulista
-
+from .config import Config                          #Tuodaan Config-luokka config-moduulista
+import asyncpg                                  #Tuodaan asyncpg-moduuli
+import datetime                                 #   Tuodaan datetime-moduuli
+import time                                     #Tuodaan time-moduuli
+from .database import get_database_connection   #Tuodaan get_database_connection-funktio database-moduulista
+import logging #                                Tuodaan logging-moduuli
 
 # Määritellään muuttujat, jotka sisältävät päivämäärät 10 ja 20 päivää eteenpäin
 aika_nyt = datetime.datetime.now().date()
@@ -14,6 +14,8 @@ new_date_plus_10 = date_plus_10.strftime("%Y-%m-%d")
 date_plus_20 = aika_nyt + datetime.timedelta(days=20)
 new_date_plus_20 = date_plus_20.strftime("%Y-%m-%d")
 
+logging.basicConfig(level=logging.INFO) #Määritetään perusasetukset loggingille, INFO-tasolla
+logger = logging.getLogger(__name__) #Luodaan logger-olio   
 
 #Luodaan Blueprint radius reititys
 radius_bp = Blueprint('radius', __name__) 
@@ -31,6 +33,22 @@ async def fetch_search_history(con, location_code):
     return [{'cityFrom': res['from_city'], 'cityTo': res['to_city'], 'price': res['price'], 'deep_link': res['url']}
             for res in search_history]
 
+async def fetch_from_kiwi(session, url, params, headers): #Määritellään asynkroninen funktio fetch_from_kiwi, joka ottaa vastaan session, url, params ja headers parametrit
+    async with session.get(url, params=params, headers=headers) as response: #Tehdään GET-pyyntö Kiwi API:lle
+        if response.status != 200: #Jos vastauskoodi ei ole 200
+            raise Exception('Failed to fetch data from Kiwi API') #Heitetään poikkeus
+        return await response.json() #Muutetaan vastaus JSON-muotoon
+
+async def save_fligth_data(con, data): #Määritellään asynkroninen funktio save_fligth_data, joka ottaa vastaan con ja data parametrit
+    for flight_data in data: #Käydään läpi data
+        await con.execute('''
+            INSERT INTO search_history (from_city, to_city, price, date_time, url, from_id, to_id, local_arrival, local_departure, stopovers, adults)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        ''', flight_data.get('cityFrom', 'N/A'), flight_data.get('cityTo', 'N/A'), flight_data.get('price', 'N/A'),
+        int(time.time()), flight_data.get('deep_link', 'N/A'), flight_data.get('cityCodeFrom', 'N/A'),
+        flight_data.get('cityCodeTo', 'N/A'), flight_data.get('local_arrival', 'N/A'), flight_data.get('local_departure', 'N/A'),
+        len(flight_data.get('route', [])) - 1, 1)
+
 @radius_bp.route('/api/location/radius', methods=['GET']) # Määritellään reitti /api/location/radius, joka ottaa vastaan vain GET-pyyntöjä
 async def receive_location(): #Määritellään asynkroninen funktio receive_location
     latitude = request.args.get('latitude') # Haetaan latitude-parametri pyynnöstä
@@ -41,61 +59,47 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
 
     try:  #Yritetään suorittaa seuraava koodi
         async with aiohttp.ClientSession() as session: # Luodaan asynkroninen HTTP-istunto
-            async with session.get(             # Tehdään GET-pyyntö Kiwi API:lle
-                f'{Config.TEQUILA_ENDPOINT_LOCATION}/locations/radius',
-                params={
-                    'lat': latitude,
-                    'lon': longitude,
-                    'radius': 250,
-                    'locale': 'en-US',
-                    'location_types': 'airport',
-                    'limit': 1
-                },
-                headers={'apikey': Config.API_KEY} # Lisätään API-avain
-            ) as kiwi_response: # Tallennetaan vastaus muuttujaan kiwi_response
-                if kiwi_response.status != 200:     #Jos vastauskoodi ei ole 200
-                    return jsonify({'error': 'Failed to fetch data from Kiwi API'}), 500    # Palautetaan virheilmoitus ja statuskoodi 500
-                
-                kiwi_data = await kiwi_response.json() # Odotetaan ja muutetaan vastaus JSON-muotoon
-                if 'locations' in kiwi_data: #Jos locations löytyy kiwi_datasta
-                    location = kiwi_data['locations'][0]   #Haetaan ensimmäinen sijainti 'locations' avaimesta
-                    if 'code' in location: #Jos 'code' avain löytyy locationista
-                        con = await get_database_connection() #Haetaan tietokannan yhteys
-                        try:
-                            db_data = await fetch_search_history(con, location['code'])
+            kiwi_data = await fetch_from_kiwi( #Haetaan data Kiwi API:sta
+                session, #Session
+                f'{Config.TEQUILA_ENDPOINT_LOCATION}/locations/radius', #URL
+                params={'lat': latitude, 'lon': longitude, 'radius': 250}, #Parametrit
+                headers={'apikey': Config.API_KEY}) #Otsikot
+            if 'locations' in kiwi_data:    # Jos 'locations' löytyy kiwi_datasta
+                location = kiwi_data['locations'][0] # Otetaan ensimmäinen sijainti
+                if 'code' in location:               # Jos 'code' löytyy sijainnista
+                    code_location = location['code']    # Tehdään code_location-muuttuja, joka sisältää sijainnin koodin joka auttaa tulevaisuudessa estämään virheitä, jos lentokentästä ei ole lentoja
+                    con = await get_database_connection() #Haetaan tietokannan yhteys
+                    try:
+                        db_data = await fetch_search_history(con, code_location)    # Haetaan tietueet tietokannasta
+                        if len(db_data) < 3:        # Tarvitsemme 3 korttia
+                            date_from = new_date_plus_10 #  Lentojen päivämäärä 10 päivää eteenpäin
+                            date_to = new_date_plus_20  #  Lentojen päivämäärä 20 päivää eteenpäin (haku 10 -20 pv eteenpäin)
+                            logger.info(f"Fetching data from Kiwi API for location: {location['code']}") #Tulostetaan lokitiedot
+                            kiwi_data = await fetch_from_kiwi(
+                                session,
+                                f'{Config.TEQUILA_ENDPOINT_LOCATION}/v2/search',
+                                params={'fly_from': location['code'], 'date_from': date_from, 'date_to': date_to, 'partner_market': 'us', 'partner': 'picky', 'curr': 'USD', 'limit': 3},
+                                headers={'apikey': Config.API_KEY}  #Haetaan satunnaisia lentoja Kiwi API:sta (10-20 pv eteenpäin)
+                            )
+                            data = kiwi_data['data'] # Talleneteaan data-muuttujaan data Kiwi API:sta
 
-                            if len(db_data) < 3:
-                                date_from = new_date_plus_10
-                                date_to = new_date_plus_20
-                                async with session.get(
-                                    'https://api.tequila.kiwi.com/v2/search',
-                                    params={
-                                        'fly_from': location['code'],
-                                        'date_from': date_from,
-                                        'date_to': date_to,
-                                        'adults': 1,
-                                        'limit': 3
-                                    },
-                                    headers={'apikey': Config.API_KEY, 'Content-Type': 'application/json'}
-                                ) as kiwi_response:
-                                    if kiwi_response.status != 200:
-                                        return jsonify({'error': 'Failed to fetch data from Kiwi API'}), 500
-                                    
-                                    kiwi_data = await kiwi_response.json()
-                                    if 'data' in kiwi_data:
-                                        data = kiwi_data['data']
-                                        for flight_data in data:
-                                            await con.execute('''
-                                                INSERT INTO search_history (from_city, to_city, price, date_time, url, from_id, to_id, local_arrival, local_departure, stopovers, adults)
-                                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-                                            ''', flight_data.get('cityFrom', 'N/A'), flight_data.get('cityTo', 'N/A'), flight_data.get('price', 'N/A'), int(time.time()), flight_data.get('deep_link', 'N/A'),
-                                            flight_data.get('cityCodeFrom', 'N/A'), flight_data.get('cityCodeTo', 'N/A'), flight_data.get('local_arrival', 'N/A'), flight_data.get('local_departure', 'N/A'), len(flight_data.get('route', [])) - 1, 1)
-
-                                        db_data = await fetch_search_history(con, location['code'])
-                        finally:
-                            await con.close()
-                        return jsonify(db_data)
+                            if len(kiwi_data['data']) < 1: # Jos dataa ei löydy
+                                kiwi_data = await fetch_from_kiwi( 
+                                    session,
+                                    f'{Config.TEQUILA_ENDPOINT_LOCATION}/v2/search',
+                                    params={'fly_from': 'HEL', 'date_from': date_from, 'date_to': date_to, 'partner_market': 'us', 'partner': 'picky', 'curr': 'USD', 'limit': 3},
+                                    headers={'apikey': Config.API_KEY}
+                                                                    )  # TEhdään uusi haku HEL-lentoasemalle // tulevaisuudessa pitää muuttaa 
+                                data = kiwi_data['data']  
+                                code_location = 'HEL'   # Vaihdetaan code_location-muuttuja HEL-lentoasemaan, että voidaan estää virheitä, jos lentokentästä ei ole lentoja
+                        await save_fligth_data(con, data)  #Tallenetaan data tietokantaan
+                        db_data = await fetch_search_history(con, code_location) #Haetaan tietueet tietokannasta
+                        logger.info(f"db_data: {db_data}") 
+                        return jsonify(db_data) #Palautetaan tietueet JSON-muodossa
+                    finally:
+                        await con.close()
     except Exception as e:
-        return jsonify({'error': f'An error occurred: {e}'}), 500
+        logger.error(f'An error occurred: {e}')
+        return jsonify({'error': f'An error occurred final: {e}'}), 500
 
     return jsonify({'error': 'No location code found'}), 404

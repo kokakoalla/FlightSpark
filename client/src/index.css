@@ -8,9 +8,9 @@ html {
   background-size: ;
   background: radial-gradient(
     circle at top,
-    rgb(225, 32, 32) 0%,
-    rgb(29, 29, 165) 35%,
-    rgb(59, 153, 172) 100%
+    rgb(205, 84, 84) 0%,
+    rgb(22, 22, 131) 35%,
+    rgb(34, 130, 149) 100%
   );
 }
 

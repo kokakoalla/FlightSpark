@@ -2,14 +2,16 @@
 import React from "react"; // Tuodaan React käyttöön
 import Button from "@mui/material/Button"; // Tuodaan Button-komponentti Material-UI kirjastosta
 
-interface Route { // Määritellään Route-interface, joka kuvaa Route-tyyppistä dataa
+interface Route {
+  // Määritellään Route-interface, joka kuvaa Route-tyyppistä dataa
   airline: string;
   to: string;
   departure: string;
   arrival: string;
 }
 
-interface CardProps { // Määritellään CardProps-interface, joka kuvaa CardProps-tyyppistä dataa
+interface CardProps {
+  // Määritellään CardProps-interface, joka kuvaa CardProps-tyyppistä dataa
   price: number;
   url: string;
   fromCity: string;
@@ -18,7 +20,8 @@ interface CardProps { // Määritellään CardProps-interface, joka kuvaa CardPr
   returnRoutes: Route[];
 }
 
-const formatTime = (dateString: string) => { //Määritellään formatTime-funktio, joka muuttaa aikaleiman muotoon hh:mm
+const formatTime = (dateString: string) => {
+  //Määritellään formatTime-funktio, joka muuttaa aikaleiman muotoon hh:mm
   const date = new Date(dateString);
   return date.toLocaleTimeString("en-GB", {
     timeZone: "UTC",
@@ -26,7 +29,8 @@ const formatTime = (dateString: string) => { //Määritellään formatTime-funkt
     minute: "2-digit",
   });
 };
-const formatDate = (dateString: string) => { //Määritellään formatDate-funktio, joka muuttaa päivämäärän muotoon dd.mm
+const formatDate = (dateString: string) => {
+  //Määritellään formatDate-funktio, joka muuttaa päivämäärän muotoon dd.mm
   const date = new Date(dateString);
   return date.toLocaleDateString("ru-EN", {
     timeZone: "UTC",
@@ -35,7 +39,8 @@ const formatDate = (dateString: string) => { //Määritellään formatDate-funkt
   });
 };
 
-const FlightCard: React.FC<CardProps> = ({ //Määritellään FlightCard-komponentti, joka saa propsina CardProps-tyyppistä dataa
+const FlightCard: React.FC<CardProps> = ({
+  //Määritellään FlightCard-komponentti, joka saa propsina CardProps-tyyppistä dataa
   price,
   url,
   fromCity,
@@ -61,48 +66,44 @@ const FlightCard: React.FC<CardProps> = ({ //Määritellään FlightCard-kompone
       >
         <div>
           <div className="flex items-center justify-between mb-4">
-            <div className="flex space-x-4">
+            <div className="flex space-x-11">
               <div className="flex flex-col items-center">
-                <div className="text-2xl">{formatTime(outboundDeparture)}</div>
-
                 <div className="text-gray-600">{fromCity}</div>
-                <div className="text-base">{formatDate(outboundDeparture)}</div>
-              </div>
-              <div className="flex flex-col items-center ">
-                <div className="text-sm text-gray-600">
-                  {outboundRoutes.length > 1
-                    ? `${outboundRoutes.length - 1} stop`
-                    : "Direct"}
+                <div className="text-2xl">{formatTime(outboundDeparture)}</div>
+                <div className="text-gray-400">
+                  {formatDate(outboundDeparture)}
                 </div>
               </div>
+              <div className="flex flex-col items-center "></div>
               <div className="flex flex-col items-center">
-                <div className="text-2xl">{formatTime(outboundArrival)}</div>
-
                 <div className="text-gray-600">{toCity}</div>
-                <div className="text-base">{formatDate(outboundArrival)}</div>
+                <div className="text-2xl">{formatTime(outboundArrival)}</div>
+                <div className="text-gray-400">
+                  {formatDate(outboundArrival)}
+                </div>
               </div>
             </div>
           </div>
           {returnRoutes.length > 0 && (
             <>
               <div className="flex items-center justify-between mb-4">
-                <div className="flex space-x-4">
+                <div className="flex space-x-11">
                   <div className="flex flex-col items-center">
+                    <div className="text-gray-600">{toCity}</div>
                     <div className="text-2xl">
                       {formatTime(returnDeparture)}
                     </div>
-                    <div className="text-gray-600">{toCity}</div>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <div className="text-sm text-gray-600">
-                      {returnRoutes.length > 1
-                        ? `${returnRoutes.length - 1} stop`
-                        : "Direct"}
+                    <div className="text-gray-400">
+                      {formatDate(returnDeparture)}
                     </div>
                   </div>
+                  <div className="flex flex-col items-center "></div>
                   <div className="flex flex-col items-center">
-                    <div className="text-2xl">{formatTime(returnArrival)}</div>
                     <div className="text-gray-600">{fromCity}</div>
+                    <div className="text-2xl">{formatTime(returnArrival)}</div>
+                    <div className="text-gray-400">
+                      {formatDate(returnArrival)}
+                    </div>
                   </div>
                 </div>
               </div>
