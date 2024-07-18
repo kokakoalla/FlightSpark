@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "14" # or any version you need
+          node-version: "22" # or any version you need
 
       - name: Install frontend dependencies
         run: |
@@ -33,7 +33,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: "3.8" # or any version you need
+          python-version: "3.12" # or any version you need
 
       - name: Install backend dependencies
         run: |
