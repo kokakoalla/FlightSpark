@@ -2,7 +2,7 @@ from quart import Quart, jsonify, request # tuodaan tarvittavat moduulit
 from routes import create_app # tuodaan create_app-funktio routes-moduulista
 import asyncio # tuodaan asyncio-moduuli
 
-app = create_app() #luodan sovelluksen olio(istanssi) käyttäen create_app-funktiota
+app = create_app() #luodan sovelluksen olio(istanssi) käyttäen create_app-funktiota 123123
 print(app) #tulostetaan sovelluksen olio(istanssi)
 
 @app.after_request
