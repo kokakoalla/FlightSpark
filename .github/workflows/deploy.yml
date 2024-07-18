@@ -31,7 +31,7 @@ jobs:
 
       # Backend setup
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: "3.12" # or any version you need
 
