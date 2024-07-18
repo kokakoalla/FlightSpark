@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from "react";
 import Radius from "./Radius"; // Import Radius component
 
-const Geo = () => {
-  const [location, setLocation] = useState({ latitude: null, longitude: null });
-  const [error, setError] = useState(null);
+interface Location {
+  latitude: number | null;
+  longitude: number | null;
+}
+
+const Geo: React.FC = () => {
+  const [location, setLocation] = useState<Location>({
+    latitude: null,
+    longitude: null,
+  });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -51,7 +59,7 @@ const Geo = () => {
         <p>{error}</p>
       ) : (
         <>
-          {location.latitude && location.longitude ? (
+          {location.latitude !== null && location.longitude !== null ? (
             <>
               {/* <p>
                 Your location: Lat {location.latitude}, Lon {location.longitude}

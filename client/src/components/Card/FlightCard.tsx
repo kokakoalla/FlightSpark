@@ -1,9 +1,7 @@
-// Kuvaus: Tämä komponentti luo lentojen korttin
-import React from "react"; // Tuodaan React käyttöön
-import Button from "@mui/material/Button"; // Tuodaan Button-komponentti Material-UI kirjastosta
+import React from "react";
+import Button from "@mui/material/Button";
 
 interface Route {
-  // Määritellään Route-interface, joka kuvaa Route-tyyppistä dataa
   airline: string;
   to: string;
   departure: string;
@@ -11,7 +9,6 @@ interface Route {
 }
 
 interface CardProps {
-  // Määritellään CardProps-interface, joka kuvaa CardProps-tyyppistä dataa
   price: number;
   url: string;
   fromCity: string;
@@ -21,7 +18,6 @@ interface CardProps {
 }
 
 const formatTime = (dateString: string) => {
-  //Määritellään formatTime-funktio, joka muuttaa aikaleiman muotoon hh:mm
   const date = new Date(dateString);
   return date.toLocaleTimeString("en-GB", {
     timeZone: "UTC",
@@ -29,8 +25,8 @@ const formatTime = (dateString: string) => {
     minute: "2-digit",
   });
 };
+
 const formatDate = (dateString: string) => {
-  //Määritellään formatDate-funktio, joka muuttaa päivämäärän muotoon dd.mm
   const date = new Date(dateString);
   return date.toLocaleDateString("ru-EN", {
     timeZone: "UTC",
@@ -40,7 +36,6 @@ const formatDate = (dateString: string) => {
 };
 
 const FlightCard: React.FC<CardProps> = ({
-  //Määritellään FlightCard-komponentti, joka saa propsina CardProps-tyyppistä dataa
   price,
   url,
   fromCity,
@@ -48,13 +43,13 @@ const FlightCard: React.FC<CardProps> = ({
   outboundRoutes,
   returnRoutes,
 }) => {
-  const outboundDeparture = outboundRoutes[0].departure;
-  const outboundArrival = outboundRoutes[outboundRoutes.length - 1].arrival;
+  const outboundDeparture = outboundRoutes[0]?.departure;
+  const outboundArrival = outboundRoutes[outboundRoutes.length - 1]?.arrival;
   const returnDeparture =
-    returnRoutes.length > 0 ? returnRoutes[0].departure : null;
+    returnRoutes.length > 0 ? returnRoutes[0]?.departure : null;
   const returnArrival =
     returnRoutes.length > 0
-      ? returnRoutes[returnRoutes.length - 1].arrival
+      ? returnRoutes[returnRoutes.length - 1]?.arrival
       : null;
 
   return (
@@ -66,20 +61,24 @@ const FlightCard: React.FC<CardProps> = ({
       >
         <div>
           <div className="flex items-center justify-between mb-4">
-            <div className="flex space-x-11">
+            <div className="flex space-x-4">
               <div className="flex flex-col items-center">
+                <div className="text-2xl">
+                  {outboundDeparture && formatTime(outboundDeparture)}
+                </div>
                 <div className="text-gray-600">{fromCity}</div>
-                <div className="text-2xl">{formatTime(outboundDeparture)}</div>
-                <div className="text-gray-400">
-                  {formatDate(outboundDeparture)}
+                <div className="text-base">
+                  {outboundDeparture && formatDate(outboundDeparture)}
                 </div>
               </div>
               <div className="flex flex-col items-center "></div>
               <div className="flex flex-col items-center">
+                <div className="text-2xl">
+                  {outboundArrival && formatTime(outboundArrival)}
+                </div>
                 <div className="text-gray-600">{toCity}</div>
-                <div className="text-2xl">{formatTime(outboundArrival)}</div>
-                <div className="text-gray-400">
-                  {formatDate(outboundArrival)}
+                <div className="text-base">
+                  {outboundArrival && formatDate(outboundArrival)}
                 </div>
               </div>
             </div>
@@ -87,22 +86,24 @@ const FlightCard: React.FC<CardProps> = ({
           {returnRoutes.length > 0 && (
             <>
               <div className="flex items-center justify-between mb-4">
-                <div className="flex space-x-11">
+                <div className="flex space-x-4">
                   <div className="flex flex-col items-center">
-                    <div className="text-gray-600">{toCity}</div>
                     <div className="text-2xl">
-                      {formatTime(returnDeparture)}
+                      {returnDeparture && formatTime(returnDeparture)}
                     </div>
-                    <div className="text-gray-400">
-                      {formatDate(returnDeparture)}
+                    <div className="text-gray-600">{toCity}</div>
+                    <div className="text-base">
+                      {returnDeparture && formatDate(returnDeparture)}
                     </div>
                   </div>
-                  <div className="flex flex-col items-center "></div>
+                  <div className="flex flex-col items-center"></div>
                   <div className="flex flex-col items-center">
+                    <div className="text-2xl">
+                      {returnArrival && formatTime(returnArrival)}
+                    </div>
                     <div className="text-gray-600">{fromCity}</div>
-                    <div className="text-2xl">{formatTime(returnArrival)}</div>
-                    <div className="text-gray-400">
-                      {formatDate(returnArrival)}
+                    <div className="text-base">
+                      {returnArrival && formatDate(returnArrival)}
                     </div>
                   </div>
                 </div>
@@ -126,4 +127,4 @@ const FlightCard: React.FC<CardProps> = ({
   );
 };
 
-export default FlightCard; // Viedään FlightCard-komponentti exportattavaksi Flightlist.tsx-tiedostoon
+export default FlightCard;
