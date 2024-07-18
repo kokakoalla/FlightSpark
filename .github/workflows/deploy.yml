@@ -1,0 +1,50 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - PostgreSql
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Frontend setup
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14" # or any version you need
+
+      - name: Install frontend dependencies
+        run: |
+          cd client
+          npm install
+
+      - name: Build frontend
+        run: |
+          cd client
+          npm run build
+
+      # Backend setup
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.8" # or any version you need
+
+      - name: Install backend dependencies
+        run: |
+          cd server
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Deploy to Azure Web App
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "FlightSpark" # Your Azure Web App name
+          slot-name: "production" # Deployment slot
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # GitHub secret with publish profile
