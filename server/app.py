@@ -16,3 +16,4 @@ if __name__ == '__main__': # Jos tiedostoa ajetaan suoraan, käynnistetään sov
     asyncio.run(app.run_task()) # Käynnistetään sovellus asynkronisesti
 
 
+# Path: server/routes/__init__.py
