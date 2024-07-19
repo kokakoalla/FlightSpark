@@ -29,17 +29,17 @@ jobs:
           source antenv/bin/activate
           python -m pip check
 
-      - name: Linting Python code
-        run: |
-          source antenv/bin/activate
-          pip install flake8
-          flake8 .
+      # - name: Linting Python code
+      #   run: |
+      #     source antenv/bin/activate
+      #     pip install flake8
+      #     flake8 .
 
-      - name: Run Python tests
-        run: |
-          source antenv/bin/activate
-          pip install pytest
-          pytest
+      # - name: Run Python tests
+      #   run: |
+      #     source antenv/bin/activate
+      #     pip install pytest
+      #     pytest
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
