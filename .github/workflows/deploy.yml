@@ -31,9 +31,10 @@ jobs:
           npm install
           npm run build
         working-directory: ./client 
+
       - name: Zip artifacts for deployment
         run: |
-          zip -r release.zip ./* -x "venv/*" -x "frontend/node_modules/*"
+          zip -r release.zip . -x "venv/*" -x "client/node_modules/*" -x "*.git/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -55,7 +56,7 @@ jobs:
           name: app-artifacts
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: unzip release.zip -d $HOME/site/wwwroot
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
