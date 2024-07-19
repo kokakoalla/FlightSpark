@@ -1,50 +1,62 @@
-name: Deploy to Azure Web App
+name: Build and deploy Python app to Azure Web App - FlightSpark
 
 on:
   push:
     branches:
       - PostgreSql
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      # Frontend setup
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Set up Python version
+        uses: actions/setup-python@v5
         with:
-          node-version: "22" # or any version you need
+          python-version: "3.12"
 
-      - name: Install frontend dependencies
+      - name: Create and start virtual environment
         run: |
-          cd client
-          npm install
+          python -m venv venv
+          source venv/bin/activate
 
-      - name: Build frontend
-        run: |
-          cd client
-          npm run build
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      # Backend setup
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Zip artifact for deployment
+        run: zip release.zip ./* -r
+
+      - name: Upload artifact for deployment jobs
+        uses: actions/upload-artifact@v4
         with:
-          python-version: "3.12" # or any version you need
+          name: python-app
+          path: |
+            release.zip
+            !venv/
 
-      - name: Install backend dependencies
-        run: |
-          cd server
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: "production"
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
-      # Deploy to Azure Web App
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
         with:
-          app-name: "FlightSpark" # Your Azure Web App name
-          slot-name: "production" # Deployment slot
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }} # GitHub secret with publish profile
+          name: python-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      - name: "Deploy to Azure Web App"
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: "FlightSpark"
+          slot-name: "production"
+          publish-profile: ${{ secrets.AzureAppService_PublishProfile_e1033ca629204fa7b9a8b09498ae680e }}
