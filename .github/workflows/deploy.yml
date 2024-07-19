@@ -29,27 +29,47 @@ jobs:
           source antenv/bin/activate
           python -m pip check
 
-      # - name: Linting Python code
-      #   run: |
-      #     source antenv/bin/activate
-      #     pip install flake8
-      #     flake8 .
+      - name: Linting Python code
+        run: |
+          source antenv/bin/activate
+          pip install flake8
+          flake8 .
 
-      # - name: Run Python tests
-      #   run: |
-      #     source antenv/bin/activate
-      #     pip install pytest
-      #     pytest
+      - name: Run Python tests
+        run: |
+          source antenv/bin/activate
+          pip install pytest
+          pytest
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "22"
 
+      - name: Update npm
+        run: |
+          npm install -g npm@latest
+
+      - name: Clean npm cache
+        run: |
+          cd client
+          npm cache clean --force
+
       - name: Install frontend dependencies
         run: |
           cd client
           npm install
+
+      - name: Remove package-lock.json
+        run: |
+          cd client
+          rm -f package-lock.json
+          npm install
+
+      - name: List node_modules/.bin
+        run: |
+          cd client
+          ls -l node_modules/.bin
 
       - name: Build frontend
         run: |
