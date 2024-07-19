@@ -84,9 +84,14 @@ jobs:
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_E1033CA629204FA7B9A8B09498AE680E }}
           package: .
 
+      - name: Authenticate Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
       - name: Restart Azure Web App
         run: |
-          az webapp restart --name flightspark --resource-group your_resource_group --subscription your_subscription_id
+          az webapp restart --name flightspark --resource-group your_resource_group
           echo "Web App restarted."
 
       - name: Verify Deployment
