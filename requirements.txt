@@ -38,6 +38,7 @@ typing_extensions==4.12.2
 tzlocal==5.2
 urllib3==2.2.1
 uvicorn==0.30.1
+uvicorn
 Werkzeug==3.0.3
 wsproto==1.2.0
 yarl==1.9.4
