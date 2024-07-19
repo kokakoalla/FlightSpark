@@ -10,67 +10,67 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        node-version: '20'
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          node-version: "20"
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
 
-    - name: Install Python dependencies
-      run: |
-        python -m venv antenv
-        source antenv/bin/activate
-        pip install -r requirements.txt
+      - name: Install Python dependencies
+        run: |
+          python -m venv antenv
+          source antenv/bin/activate
+          pip install -r requirements.txt
 
-    - name: Verify Python installation
-      run: |
-        source antenv/bin/activate
-        python -m pip check
+      - name: Verify Python installation
+        run: |
+          source antenv/bin/activate
+          python -m pip check
 
-    - name: Linting Python code
-      run: |
-        source antenv/bin/activate
-        pip install flake8
-        flake8 .
+      - name: Linting Python code
+        run: |
+          source antenv/bin/activate
+          pip install flake8
+          flake8 .
 
-    - name: Run Python tests
-      run: |
-        source antenv/bin/activate
-        pip install pytest
-        pytest
+      - name: Run Python tests
+        run: |
+          source antenv/bin/activate
+          pip install pytest
+          pytest
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
 
-    - name: Install frontend dependencies
-      run: |
-        cd client
-        npm install
+      - name: Install frontend dependencies
+        run: |
+          cd client
+          npm install
 
-    - name: Build frontend
-      run: |
-        cd client
-        npm run build
+      - name: Build frontend
+        run: |
+          cd client
+          npm run build
 
-    - name: Deploy to Azure Web App
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: flightspark
-        slot-name: production
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        package: .
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: flightspark
+          slot-name: production
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
 
-    - name: Restart Azure Web App
-      run: |
-        az webapp restart --name flightspark --resource-group your_resource_group --subscription your_subscription_id
-        echo "Web App restarted."
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart --name flightspark --resource-group your_resource_group --subscription your_subscription_id
+          echo "Web App restarted."
 
-    - name: Verify Deployment
-      run: |
-        curl -I https://flightspark.azurewebsites.net
+      - name: Verify Deployment
+        run: |
+          curl -I https://flightspark.azurewebsites.net
