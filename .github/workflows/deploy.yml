@@ -3,7 +3,7 @@ name: Deploy to Azure Web App
 on:
   push:
     branches:
-      - main
+      - PostgreSql
 
 jobs:
   build-and-deploy:
@@ -18,34 +18,43 @@ jobs:
       with:
         python-version: '3.12'
 
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: |
         python -m venv antenv
         source antenv/bin/activate
         pip install -r requirements.txt
 
-    - name: Verify installation
+    - name: Verify Python installation
       run: |
         source antenv/bin/activate
         python -m pip check
 
-    - name: Linting
+    - name: Linting Python code
       run: |
         source antenv/bin/activate
         pip install flake8
         flake8 .
 
-    - name: Run tests
+    - name: Run Python tests
       run: |
         source antenv/bin/activate
         pip install pytest
         pytest
 
-    - name: Package application
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install frontend dependencies
       run: |
-        source antenv/bin/activate
-        pip install wheel
-        python setup.py sdist bdist_wheel
+        cd client
+        npm install
+
+    - name: Build frontend
+      run: |
+        cd client
+        npm run build
 
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
