@@ -30,7 +30,7 @@ jobs:
         run: |
           npm install
           npm run build
-        working-directory: ./frontend # Adjust to your Vite.js project directory
+        working-directory: ./client # Adjust to your Vite.js project directory
 
       - name: Zip artifacts for deployment
         run: |
