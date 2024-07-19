@@ -10,6 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      API_KEY: ${{ secrets.API_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +34,7 @@ jobs:
         run: |
           npm install
           npm run build
-        working-directory: ./client # Adjust to your Vite.js project directory
+        working-directory: ./frontend  # Adjust to your Vite.js project directory
 
       - name: Zip artifacts for deployment
         run: |
