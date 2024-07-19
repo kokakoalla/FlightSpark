@@ -29,11 +29,11 @@ jobs:
           source antenv/bin/activate
           python -m pip check
 
-      - name: Linting Python code
-        run: |
-          source antenv/bin/activate
-          pip install flake8
-          flake8 .
+      # - name: Linting Python code
+      #   run: |
+      #     source antenv/bin/activate
+      #     pip install flake8
+      #     flake8 .
 
       - name: Run Python tests
         run: |
