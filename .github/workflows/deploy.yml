@@ -1,4 +1,4 @@
-name: Build and deploy Python app to Azure Web App - FlightSpark
+name: Build and deploy Python app with Vite.js frontend to Azure Web App - FlightSpark
 
 on:
   push:
@@ -23,19 +23,24 @@ jobs:
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+      - name: Build Vite.js frontend
+        run: |
+          npm install
+          npm run build
+        working-directory: ./frontend # Adjust to your Vite.js project directory
+
+      - name: Zip artifacts for deployment
+        run: |
+          zip -r release.zip ./* -x "venv/*" -x "frontend/node_modules/*"
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
-          name: python-app
-          path: |
-            release.zip
-            !venv/
+          name: app-artifacts
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -48,12 +53,12 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: python-app
+          name: app-artifacts
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: "Deploy to Azure Web App"
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
