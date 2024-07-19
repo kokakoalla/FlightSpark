@@ -10,24 +10,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v1
-        with:
-          python-version: "3.12"
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.12'
 
-      - name: Install dependencies
-        run: |
-          python -m venv antenv
-          source antenv/bin/activate
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m venv antenv
+        source antenv/bin/activate
+        pip install -r requirements.txt
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: flightspark
-          slot-name: production
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: .
+    - name: Verify installation
+      run: |
+        source antenv/bin/activate
+        python -m pip check
+
+    - name: Linting
+      run: |
+        source antenv/bin/activate
+        pip install flake8
+        flake8 .
+
+    - name: Run tests
+      run: |
+        source antenv/bin/activate
+        pip install pytest
+        pytest
+
+    - name: Package application
+      run: |
+        source antenv/bin/activate
+        pip install wheel
+        python setup.py sdist bdist_wheel
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: flightspark
+        slot-name: production
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: .
+
+    - name: Restart Azure Web App
+      run: |
+        az webapp restart --name flightspark --resource-group your_resource_group --subscription your_subscription_id
+        echo "Web App restarted."
+
+    - name: Verify Deployment
+      run: |
+        curl -I https://flightspark.azurewebsites.net
