@@ -31,7 +31,7 @@ const Location: React.FC<LocationProps> = ({ onLocationChange }) => {
             // send location to flask back
             console.log("Sending location to backend:", loc);
             axios
-              .post("http://localhost:5000/api/location", loc)
+              .post("http://localhost:8000/api/location", loc)
               .then((response) => {
                 console.log("Location sent successfully:", response.data);
                 sentRef.current = true; // set to true after location is sent
