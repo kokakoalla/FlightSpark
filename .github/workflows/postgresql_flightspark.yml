@@ -64,4 +64,4 @@ jobs:
         with:
           app-name: 'FlightSpark'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_64D7AF48727847AD8763027EA7033A33 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8807B82E1F0D45579BF056D2D70A59C0 }}
