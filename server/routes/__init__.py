@@ -1,62 +1,67 @@
-import logging #Tuodaan logging-moduuli
-from quart import Quart #Tuodaan Quart-moduuli
-from .flight import flight_bp #Tuodaan flight_bp Blueprint-moduuli
-from .location import location_bp #Tuodaan location_bp Blueprint-moduuli
-from .radius import radius_bp #Tuodaan radius_bp Blueprint-moduuli
-from .config import Config #Tuodaan Config-moduuli
-from apscheduler.schedulers.asyncio import AsyncIOScheduler #Tuodaan AsyncIOScheduler-moduuli
-from apscheduler.triggers.interval import IntervalTrigger #Tuodaan IntervalTrigger-moduuli
-import asyncpg #Tuodaan asyncpg-moduuli
-import asyncio #Tuodaan asyncio-moduuli
-import datetime #Tuodaan datetime-moduuli
+import logging
+from quart import Quart
+from .flight import flight_bp
+from .location import location_bp
+from .radius import radius_bp
+from .config import Config
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
+import datetime
 
-# logging.basicConfig(level=logging.INFO) # Määritetään perusasetukset loggingille, INFO-tasolla
-# logger = logging.getLogger(__name__) #Luodaan logger-olio
+# logging.basicConfig(level=logging.INFO)  # Set logging level to INFO
+# logger = logging.getLogger(__name__)  # Create logger instance
 
-async def cleanup_old_records(app): #Määritellään asynkroninen funktio, joka poistaa vanhat tietueet
-    async with app.db_pool.acquire() as con: #Luodaan asynkroninen yhteys tietokantaan
-        current_time = datetime.datetime.now().timestamp() #Haetaan nykyinen Unix-aika
-        time_10_days_ago = (datetime.datetime.now() + datetime.timedelta(days=10)).timestamp() #Haetaan Unix-aika 10 päivää eteenpäin
+async def cleanup_old_records(app):
+    """Remove old records from the database."""
+    async with app.db_pool.acquire() as con:
+        current_time = datetime.datetime.now().timestamp()
+        time_10_days_ago = (
+            datetime.datetime.now() - datetime.timedelta(days=10)
+        ).timestamp()
         
-        logger.info(f"Current Unix time: {current_time}") #Tulostetaan nykyinen Unix-aika
-        logger.info(f"Unix time 10 days ago: {time_10_days_ago}") #Tulostetaan Unix-aika 10 päivää eteenpäin
+        logger.info(f"Current Unix time: {current_time}")
+        logger.info(f"Unix time 10 days ago: {time_10_days_ago}")
 
-        old_records = await con.fetch('''  
+        old_records = await con.fetch('''
             SELECT * FROM search_history
             WHERE date_time < $1
-        ''', time_10_days_ago) #Haetaan vanhat tietueet tietokannasta, 10 päivää eteenpäin
+        ''', time_10_days_ago)
         
-        # if old_records:    #Jos vanhoja tietueita löytyy
-        #     logger.info(f"Old records to be deleted: {old_records}") #Tulostetaan vanhat tietueet
-        # else: #Jos vanhoja tietueita ei löydy
-        #     logger.info("No old records found.") #Tulostetaan, ettei vanhoja tietueita löytynyt
+        # if old_records:
+        #     logger.info(f"Old records to be deleted: {old_records}")
+        # else:
+        #     logger.info("No old records found.")
 
         await con.execute('''
             DELETE FROM search_history
             WHERE date_time < $1
-        ''', time_10_days_ago) #Postetaan vanhat tietueet tietokannasta
+        ''', time_10_days_ago)
         # logger.info("Old records deleted successfully.")
 
-def start_scheduler(app): #Määritellään funktio, joka käynnistää ajastimen
-    scheduler = AsyncIOScheduler() #Luodaan asynkrooninen aikatauluttaja
-    scheduler.add_job(cleanup_old_records, IntervalTrigger(days=1), args=[app]) # days=1 // Suoritetaan cleanup_old_records-funktio joka päivä
-    scheduler.start() #Käynnistetään aikatauluttaja
+def start_scheduler(app):
+    """Start the scheduler to clean up old records daily."""
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(
+        cleanup_old_records, IntervalTrigger(days=1), args=[app]
+    )
+    scheduler.start()
 
-def create_app(): #Määritellään funktio, joka luo sovelluksen
-    app = Quart(__name__) #Luodaan Quart-sovellus
-    
-    app.register_blueprint(location_bp) #Rekisteröidään reititys location_bp:sta
-    app.register_blueprint(flight_bp) #Rekisteröidään reititys flight_bp:sta
-    app.register_blueprint(radius_bp) #Rekisteröidään reititys radius_bp:sta
+def create_app():
+    """Create and configure the Quart application."""
+    app = Quart(__name__)
 
-    @app.before_serving # Määritellään funktio, joka luo tietokannan yhteyden ennen sovelluksen käynnistämistä
-    async def create_db_pool(): #Määritellään asynkroninen funktio, joka luo tietokannan yhteyden
-        app.db_pool = await asyncpg.create_pool(Config.DATABASE_URL) #Luodaan tietokannan yhteys
+    app.register_blueprint(location_bp)
+    app.register_blueprint(flight_bp)
+    app.register_blueprint(radius_bp)
 
-    @app.after_serving # Määritellään funktio, joka sulkee tietokannan yhteyden sovelluksen sulkemisen jälkeen
-    async def close_db_pool(): #Määritellään asynkroninen funktio, joka sulkee tietokannan yhteyden
-        await app.db_pool.close() #Suljetaan tietokannan yhteys
+    @app.before_serving
+    async def create_db_pool():
+        """Create a database connection pool before serving."""
+        app.db_pool = await asyncpg.create_pool(Config.DATABASE_URL)
 
-    return app #Palautetaan sovellus
+    @app.after_serving
+    async def close_db_pool():
+        """Close the database connection pool after serving."""
+        await app.db_pool.close()
 
-
+    return app
