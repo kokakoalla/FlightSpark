@@ -56,7 +56,7 @@ jobs:
           name: app-artifacts
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip -d $HOME/site/wwwroot
+        run: unzip release.zip -d .
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
