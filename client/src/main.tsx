@@ -1,20 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
-import FlightSearch from "./FlightSearch.tsx";
-import Radius from "./Radius.tsx";
-import Geo from "./Geo.tsx";
+import FlightSearch from "./components/Flights/FlightSearch.tsx";
+// import Radius from "./components/CardInsperation.tsx/Radius.tsx";
+import Geo from "./components/CardInsperation.tsx/Geo.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <p> Data for developer</p>
-    <p> __________________</p>
-
-    <Geo />
-    <Radius />
-    <p> Data for developer</p>
-    <p> __________________</p>
-
+    <div className="logo w-full text-center">FlightSpark</div>
     <FlightSearch />
+    <Geo />
+
+    {/* <Radius /> */}
   </React.StrictMode>
 );

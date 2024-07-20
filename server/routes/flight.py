@@ -1,76 +1,110 @@
-from flask import Blueprint, request, jsonify
-import requests
+from quart import Blueprint, request, jsonify
+import aiohttp
 from .config import Config
-from .db import get_db_connection
 import time
-import sqlite3
-import psycopg2
+from .database import get_database_connection
 
+# Create a Blueprint for flight-related routes
 flight_bp = Blueprint('flight', __name__)
 
 @flight_bp.route('/api/flights', methods=['GET'])
-
-def get_flights():
-    con = get_db_connection()
-    cur = con.cursor()
-
-
+async def get_flights():
+    """
+    Fetch flight data based on parameters and save to the database.
+    """
     from_city = request.args.get('from')
     to_city = request.args.get('to')
     date = request.args.get('date')
- #   if not from_city or not to_city or not date:
-  #      return jsonify({'error': 'virhe123'}), 400
+    date_back = request.args.get('dateBack')
+    adults = request.args.get('adults')
 
-    response = requests.get('https://api.tequila.kiwi.com/v2/search',
-                            params={
-                                'fly_from': from_city,
-                                'fly_to': to_city,
-                                'date_from': date,
-                                'date_to': date,
-                                'max_stopovers': '2',
-                            },
-                            headers={'apikey': Config.API_KEY, 'Content-Type': 'application/json'})
+    if not from_city or not to_city or not date or not adults:
+        return jsonify({'error': 'Please provide from_city, to_city, date, and adults parameters'}), 400
 
-    if response.status_code != 200:
-        return jsonify({'error': 'Ei onnistunut löyttää lippuja'}), response.status_code
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                'https://api.tequila.kiwi.com/v2/search',
+                params={
+                    'fly_from': from_city,
+                    'fly_to': to_city,
+                    'date_from': date,
+                    'date_to': date,
+                    'return_from': date_back,
+                    'return_to': date_back,
+                    'adults': adults,
+                    'max_stopovers': '2',
+                    'limit': '30',
+                },
+                headers={'apikey': Config.API_KEY, 'Content-Type': 'application/json'}
+            ) as response:
+                if response.status != 200:
+                    return jsonify({'error': 'Failed to fetch flights'}), response.status
 
-    results = response.json().get("data")
-    result = response.json()
-    res = []
+                data = await response.json()
+                results = data.get("data", [])
 
+                res = []
+                for flight_data in results:
+                    formatted_data = {
+                        'adults': adults,
+                        'price': flight_data.get('price', 'N/A'),
+                        'url': flight_data.get('deep_link', 'N/A'),
+                        'from': {
+                            'city': flight_data.get('cityFrom', 'N/A'),
+                            'city_code': flight_data.get('cityCodeFrom', 'N/A'),
+                            'country': flight_data.get('countryFrom', {}).get('name', 'N/A'),
+                        },
+                        'to': {
+                            'city': flight_data.get('cityTo', 'N/A'),
+                            'city_code': flight_data.get('cityCodeTo', 'N/A'),
+                            'country': flight_data.get('countryTo', {}).get('name', 'N/A'),
+                        },
+                        'outbound_routes': [],
+                        'return_routes': []
+                    }
 
+                    for route in flight_data.get('route', []):
+                        route_data = {
+                            'airline': route.get('airline', 'N/A'),
+                            'from': route.get('cityFrom', 'N/A'),
+                            'to': route.get('cityTo', 'N/A'),
+                            'departure': route.get('local_departure', 'N/A'),
+                            'arrival': route.get('local_arrival', 'N/A')
+                        }
+                        if route.get('return') == 0:
+                            formatted_data['outbound_routes'].append(route_data)
+                        else:
+                            formatted_data['return_routes'].append(route_data)
 
+                    res.append(formatted_data)
 
-    for i, data in enumerate(results):
-        if data.get('airlines'):
-            formatted_data = {
-                'from': data.get('cityFrom', 'N/A'),
-                'to': data.get('cityTo', 'N/A'),
-                'arrival': data.get('local_arrival', 'N/A'),
-                'departure': data.get('local_departure', 'N/A'),
-                'price': data.get('price', 'N/A'),
-                'url': data.get('deep_link', 'N/A'),
-                'from_id': data.get('cityCodeFrom', 'N/A'),
-                'to_id': data.get('cityCodeTo', 'N/A'),
-                'stopovers': len(data.get('route', [])) - 1
-            }
-            res.append(formatted_data)
+                    # Save flight data to the database
+                    con = await get_database_connection()
+                    try:
+                        for route in flight_data.get('route', []):
+                            await con.execute('''
+                                INSERT INTO search_history (from_city, to_city, price, date_time, url, from_id, to_id, local_arrival, local_departure, stopovers, adults)
+                                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                            ''',
+                            formatted_data['from']['city'],
+                            formatted_data['to']['city'],
+                            formatted_data['price'],
+                            int(time.time()),
+                            formatted_data['url'],
+                            route['cityCodeFrom'],
+                            route['cityCodeTo'],
+                            route['local_arrival'],
+                            route['local_departure'],
+                            len(flight_data.get('route', [])) - 1,
+                            int(adults))
+                    finally:
+                        await con.close()
 
-        cur.execute('''
-            INSERT INTO search_history (from_city, to_city, price, date_time, url, from_id, to_id, local_arrival, local_departure, stopovers)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (
-            formatted_data['from'], formatted_data['to'], formatted_data['price'], int(time.time()), formatted_data['url'],
-            formatted_data['from_id'], formatted_data['to_id'], formatted_data['arrival'], formatted_data['departure'], formatted_data['stopovers']
-        ))
+                return jsonify(res), 200
 
-    conn.commit()
-    cur.close()
-    conn.close()
+    except aiohttp.ClientError as e:
+        return jsonify({'error': f'Aiohttp Client Error: {str(e)}'}), 500
 
-
-    return jsonify(response.json())
-
-
-
-
+    except Exception as e:
+        return jsonify({'error': f'Server Error: {str(e)}'}), 500

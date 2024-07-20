@@ -1,64 +1,82 @@
-import React, { useState, useEffect } from "react";
+// Tämä on FlightSearch-komponentti, joka luo lentojen hakukentän
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import SearchForm from "./components/SearchForm";
-import FlightList from "./components/FlightList";
+import SearchForm from "./SearchForm";
+import FlightList from "./FlightList";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "http://localhost:8000/api"; //Määritellään API_BASE_URL, joka on http://localhost:5000/api
 
 interface LocationResponse {
   locations: { code: string; name: string; country: { name: string } }[];
 }
 
+interface Route {
+  airline: string;
+  flight_no: string;
+  from: string;
+  to: string;
+  departure: string;
+  arrival: string;
+}
+
 interface Flight {
-  local_departure: string;
-  local_arrival: string;
   price: number;
-  deep_link: string;
-  cityFrom: string;
-  cityTo: string;
+  url: string;
+  from: {
+    city: string;
+    city_code: string;
+    country: string;
+  };
+  to: {
+    city: string;
+    city_code: string;
+    country: string;
+  };
+  outbound_routes: Route[];
+  return_routes: Route[];
 }
 
 const FlightSearch: React.FC = () => {
   const [fromCity, setFromCity] = useState<string>("");
   const [toCity, setToCity] = useState<string>("");
   const [date, setDate] = useState<string>("");
+  const [dateBack, setDateBack] = useState<string>("");
+  const [adults, setAdults] = useState<number>(1);
   const [fromCityOptions, setFromCityOptions] = useState<string[]>([]);
   const [toCityOptions, setToCityOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [flights, setFlights] = useState<Flight[]>([]);
 
-  useEffect(() => {}, []);
+  const fetchCities = useCallback(        // Määritellään fetchCities-funktio, joka hakee kaupunkien tiedot
+    async (term: string, setter: (options: string[]) => void) => {  //
+      if (term.length > 2) {
+        try {
+          const response = await axios.get<LocationResponse>(
+            `${API_BASE_URL}/locations`,
+            { params: { term } }
+          );
+          setter(response.data.locations.map((location) => location.name));
+        } catch (error) {
+          console.error("Error fetching location data:", error);
+          setError("Failed to fetch location data.");
+        }
+      }
+      setLoading(false);
+    },
+    []
+  );
 
   useEffect(() => {
-    const fetchCities = async (
-      term: string,
-      setter: (options: string[]) => void
-    ) => {
-      try {
-        const response = await axios.get<LocationResponse>(
-          `${API_BASE_URL}/locations`,
-          { params: { term } }
-        );
-        setter(response.data.locations.map((location) => location.name));
-      } catch (error) {
-        console.error("error fetching location data:", error);
-        // setError("failed to fetch location data. .");
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
 
-    if (fromCity) {
-      setLoading(true);
-      fetchCities(fromCity, setFromCityOptions);
-    }
+    fetchCities(fromCity, setFromCityOptions);
+  }, [fromCity]);
 
-    if (toCity) {
-      setLoading(true);
-      fetchCities(toCity, setToCityOptions);
-    }
-  }, [fromCity, toCity]);
+  useEffect(() => {
+    setLoading(true);
+    fetchCities(toCity, setToCityOptions);
+  }, [toCity]);
 
   const handleSearch = async () => {
     setError(null);
@@ -88,15 +106,12 @@ const FlightSearch: React.FC = () => {
           from: fromCityCode,
           to: toCityCode,
           date: date,
+          dateBack: dateBack,
+          adults: adults,
         },
       });
 
-      const flightsWithDeeplink = response.data.data.map((flight: any) => ({
-        ...flight,
-        deep_link: `https://www.kiwi.com/deep?affilid=flyfindflyfind&currency=EUR&flightsId=${flight.id}&from=${fromCityCode}&lang=en&passengers=1&to=${toCityCode}&booking_token=${flight.booking_token}`,
-      }));
-
-      setFlights(flightsWithDeeplink);
+      setFlights(response.data);
     } catch (error) {
       console.error("Error fetching flights:", error);
       setError("Failed to fetch flights. Please try again.");
@@ -107,17 +122,20 @@ const FlightSearch: React.FC = () => {
 
   return (
     <div>
-      <h1>Flight Search</h1>
       <SearchForm
         fromCity={fromCity}
         toCity={toCity}
         date={date}
+        dateBack={dateBack}
+        adults={adults}
         fromCityOptions={fromCityOptions}
         toCityOptions={toCityOptions}
         loading={loading}
         onFromCityChange={setFromCity}
         onToCityChange={setToCity}
         onDateChange={setDate}
+        onDateBackChange={setDateBack}
+        onAdultsChange={setAdults}
         onSearch={handleSearch}
       />
       {error && <p style={{ color: "red" }}>{error}</p>}
