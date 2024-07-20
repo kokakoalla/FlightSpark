@@ -43,13 +43,17 @@ import asyncio # tuodaan asyncio-moduuli
 app = create_app() #luodan sovelluksen olio(istanssi) käyttäen create_app-funktiota 123123
 print(app) #tulostetaan sovelluksen olio(istanssi)
 
-@app.route('/')
-async def serve_index():
-    return await send_from_directory(app.static_folder, 'index.html')
+# @app.route('/')
+# async def serve_index():
+#     return await send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/<path:path>')
-async def serve_static(path):
-    return await send_from_directory(app.static_folder, path)
+# @app.route('/<path:path>')
+# async def serve_static(path):
+#     return await send_from_directory(app.static_folder, path)
+
+# @app.route('/test')
+# async def test():
+#     return jsonify({'message': 'Hello, World!'})
     
 @app.after_request
 async def cors_after_request(response): #määritellään asynkroninen funktio, joka lisää CORS-otsikot jokaiseen vastaukseen
