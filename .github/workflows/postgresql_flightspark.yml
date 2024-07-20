@@ -20,13 +20,17 @@ jobs:
 
       - name: Create and start virtual environment
         run: |
+          cd backend
           python -m venv venv
           source venv/bin/activate
 
-      - name: Install backend dependencies
+      - name: Install dependencies
         run: |
+          cd backend
           source venv/bin/activate
           pip install -r requirements.txt
+
+      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -49,14 +53,10 @@ jobs:
           cd client
           npm run build
 
-      - name: Copy frontend build to server static files
-        run: |
-          mkdir -p server/static
-          cp -r client/dist/* server/static/
-
       - name: Zip artifact for deployment
         run: |
-          zip -r release.zip server/ requirements.txt venv/
+          cd client
+          zip -r ../release.zip ./*
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -87,10 +87,3 @@ jobs:
           app-name: 'FlightSpark'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_B9EE9FE9B5E8417E8D4AC96D2534D7C5 }}
-
-      - name: Check deployed files
-        run: ls -R
-
-      - name: Print app logs
-        run: |
-          az webapp log tail --name ${{ secrets.AZURE_WEBAPP_NAME }} --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }}
