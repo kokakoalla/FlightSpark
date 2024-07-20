@@ -57,6 +57,7 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
     if not latitude or not longitude: #Jos latitude tai longitude puuttuu
         return jsonify({'error': 'Missing latitude or longitude'}), 400 # Palautetaan virheilmoitus ja statuskoodi 400
 
+    logger.info(f"Received location: {latitude}, {longitude}") #Tulostetaan lokitiedot
     try:  #Yritetään suorittaa seuraava koodi
         async with aiohttp.ClientSession() as session: # Luodaan asynkroninen HTTP-istunto
             kiwi_data = await fetch_from_kiwi( #Haetaan data Kiwi API:sta
@@ -66,6 +67,7 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
                 headers={'apikey': Config.API_KEY}) #Otsikot
             if 'locations' in kiwi_data:    # Jos 'locations' löytyy kiwi_datasta
                 location = kiwi_data['locations'][0] # Otetaan ensimmäinen sijainti
+                logger.info(f"Location: {location}") #Tulostetaan lokitiedot
                 if 'city' in location:               # Jos 'code' löytyy sijainnista
                     code_location = location['city']['code']    # Tehdään code_location-muuttuja, joka sisältää sijainnin koodin joka auttaa tulevaisuudessa estämään virheitä, jos lentokentästä ei ole lentoja
                     logging.info(f"Location code: {code_location}") #Tulostetaan lokitiedot

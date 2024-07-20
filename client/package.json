@@ -12,10 +12,15 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@eslint/config-array": "^0.17.0",
+    "@eslint/object-schema": "^2.1.4",
     "@mui/material": "^5.15.20",
     "axios": "^1.7.2",
+    "glob": "^11.0.0",
+    "lru-cache": "^11.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
