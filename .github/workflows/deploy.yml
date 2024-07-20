@@ -16,7 +16,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Create and start virtual environment
         run: |
@@ -50,9 +50,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     environment:
-      name: 'production'
+      name: "production"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -60,12 +60,12 @@ jobs:
           name: python-app
 
       - name: Unzip artifact for deployment
-        run: unzip -o release.zip -d server
+        run: unzip release.zip
 
-      - name: Deploy to Azure Web App
+      - name: "Deploy to Azure Web App"
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
-          app-name: 'FlightSpark'
-          slot-name: 'production'
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_1ad21525180d4503aa85b879cf7e0eaf }}
+          app-name: "FlightSpark"
+          slot-name: "production"
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2D6E3C2900324B6ABF880181B9500273 }}
