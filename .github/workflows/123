@@ -68,3 +68,5 @@ jobs:
           app-name: "FlightSpark"
           slot-name: "Production"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_2D6E3C2900324B6ABF880181B9500273 }}
+
+          # sdfsf
