@@ -4,7 +4,7 @@ import axios from "axios";
 import SearchForm from "./SearchForm";
 import FlightList from "./FlightList";
 
-const API_BASE_URL = "http://localhost:5000/api"; //Määritellään API_BASE_URL, joka on http://localhost:5000/api
+const API_BASE_URL = "http://localhost:8000/api"; //Määritellään API_BASE_URL, joka on http://localhost:5000/api
 
 interface LocationResponse {
   locations: { code: string; name: string; country: { name: string } }[];
