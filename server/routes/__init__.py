@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO) # Määritetään perusasetukset logging
 logger = logging.getLogger(__name__) #Luodaan logger-olio
 
 def create_app(): #Määritellään funktio, joka luo sovelluksen
-    app = Quart(__name__, static_folder='.../client/dist') #Luodaan Quart-sovellus
+    app = Quart(__name__, static_folder='dist') #Luodaan Quart-sovellus
     # app = Quart(__name__) #Luodaan Quart-sovellus
 
     
