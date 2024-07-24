@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__) #Luodaan logger-olio
 def create_app(): #Määritellään funktio, joka luo sovelluksen
     app = Quart(__name__, static_folder='/var/www/html/dist') #Luodaan Quart-sovellus
     # app = Quart(__name__) #Luodaan Quart-sovellus
-
+    app.static_folder = '/var/www/html/dist'
     
     app.register_blueprint(location_bp) #Rekisteröidään reititys location_bp:sta
     app.register_blueprint(flight_bp) #Rekisteröidään reititys flight_bp:sta
