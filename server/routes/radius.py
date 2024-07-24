@@ -68,8 +68,10 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
             if 'locations' in kiwi_data:    # Jos 'locations' löytyy kiwi_datasta
                 location = kiwi_data['locations'][0] # Otetaan ensimmäinen sijainti
                 logger.info(f"Location: {location}") #Tulostetaan lokitiedot
-                if 'city' in location:               # Jos 'code' löytyy sijainnista
-                    code_location = location['city']['code']    # Tehdään code_location-muuttuja, joka sisältää sijainnin koodin joka auttaa tulevaisuudessa estämään virheitä, jos lentokentästä ei ole lentoja
+                if 'code' in location:               # Jos 'code' löytyy sijainnista
+                    code_location = location['code']    # Tehdään code_location-muuttuja, joka sisältää sijainnin koodin joka auttaa tulevaisuudessa estämään virheitä, jos lentokentästä ei ole lentoja
+                    if len(code_location) != 3:
+                        code_location = 'HEL' #Jos code_location on suurempi kuin 0
                     logging.info(f"Location code: {code_location}") #Tulostetaan lokitiedot
                     con = await get_database_connection() #Haetaan tietokannan yhteys
                     try:
@@ -84,7 +86,7 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
                             kiwi_data = await fetch_from_kiwi(
                                 session,
                                 f'{Config.TEQUILA_ENDPOINT_LOCATION}/v2/search',
-                                params={'fly_from': location['city']['code'], 'date_from': date_from, 'date_to': date_to, 'partner_market': 'us', 'partner': 'picky', 'curr': 'USD', 'limit': 10},
+                                params={'fly_from': code_location, 'date_from': date_from, 'date_to': date_to, 'partner_market': 'us', 'partner': 'picky', 'curr': 'USD', 'limit': 10},
                                 headers={'apikey': Config.API_KEY}  #Haetaan satunnaisia lentoja Kiwi API:sta (10-20 pv eteenpäin)
                             )
                             data = kiwi_data['data'] # Talleneteaan data-muuttujaan data Kiwi API:sta

@@ -5,21 +5,22 @@
 html {
   padding: 8px;
   background-position: left;
-  background-size: ;
   background: radial-gradient(
     circle at top,
-    rgb(205, 84, 84) 0%,
-    rgb(22, 22, 131) 35%,
-    rgb(34, 130, 149) 100%
+    #c1121f 0%,
+    #8d0404fa 30%
+
   );
 }
 
 @font-face {
   font-family: "Honk";
-  src: url("./assets/fonts/Honk-Regular-VariableFont_MORF,SHLN.ttf");
+  src: url("./assets/fonts/LuckiestGuy-Regular.ttf");
 }
 
 .logo {
+  background-image: linear-gradient(90deg, #fdf0d5, #f8a60cd8);
+  background-clip: text;
+  color: transparent;
   font-family: "Honk";
-  font-size: 5rem;
 }
