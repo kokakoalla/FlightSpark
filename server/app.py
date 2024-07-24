@@ -27,6 +27,10 @@ async def serve_index():
 async def serve_static(path):
     return await send_from_directory(app.static_folder, path)
 
+@app.route('/test')
+def hallo():
+	return jsonify('hello:hello')
+
 @app.after_request
 async def cors_after_request(response): #määritellään asynkroninen funktio, joka lisää CORS-otsikot jokaiseen vastaukseen
     response.headers['Access-Control-Allow-Origin'] = '*' #sallitaan kaikki alkuperät
