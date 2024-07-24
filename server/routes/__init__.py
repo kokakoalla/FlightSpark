@@ -9,12 +9,16 @@ from apscheduler.triggers.interval import IntervalTrigger #Tuodaan IntervalTrigg
 import asyncpg #Tuodaan asyncpg-moduuli
 import asyncio #Tuodaan asyncio-moduuli
 import datetime #Tuodaan datetime-moduuli
+from quart_cors import cors
+
 
 logging.basicConfig(level=logging.INFO) # Määritetään perusasetukset loggingille, INFO-tasolla
 logger = logging.getLogger(__name__) #Luodaan logger-olio
 
 def create_app(): #Määritellään funktio, joka luo sovelluksen
     app = Quart(__name__, static_folder='/var/www/html/dist') #Luodaan Quart-sovellus
+    app = cors(app, allow_origin="*")
+
     # app = Quart(__name__) #Luodaan Quart-sovellus
     app.static_folder = '/var/www/html/dist'
     
