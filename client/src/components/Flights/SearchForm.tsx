@@ -1,5 +1,5 @@
 import React from "react";
-import { TextField, CircularProgress } from "@mui/material";
+import { TextField } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import { Button } from "../Button";
 
@@ -26,7 +26,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
   date,
   fromCityOptions,
   toCityOptions,
-  loading,
+  
   dateBack,
   adults,
   onFromCityChange,

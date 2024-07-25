@@ -19,13 +19,13 @@ async def log_response_info(response):
     logging.info(f"Response: {response.status}")
     return response
 
-# @app.route('/')
-# async def serve_index():
-#     return await send_from_directory(app.static_folder, 'index.html')
+@app.route('/')
+async def serve_index():
+    return await send_from_directory(app.static_folder, 'index.html')
 
-# @app.route('/<path:path>')
-# async def serve_static(path):
-#     return await send_from_directory(app.static_folder, path)
+@app.route('/<path:path>')
+async def serve_static(path):
+    return await send_from_directory(app.static_folder, path)
 
 @app.route('/test')
 def hallo():
