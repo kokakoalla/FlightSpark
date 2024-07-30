@@ -213,4 +213,3 @@ npm run dev
 ## Contribution
 
 Contributions are welcome! Please create a pull request or open an issue to discuss.
-```
