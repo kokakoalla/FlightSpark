@@ -50,6 +50,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               label="From"
               variant="outlined"
               onChange={(event) => onFromCityChange(event.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           )}
         />
@@ -67,6 +68,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
               label="To"
               variant="outlined"
               onChange={(event) => onToCityChange(event.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           )}
         />
