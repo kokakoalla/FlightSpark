@@ -69,7 +69,7 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
                 location = kiwi_data['locations'][0] # Otetaan ensimmäinen sijainti
                 logger.info(f"Location: {location}") #Tulostetaan lokitiedot
                 if 'code' in location:               # Jos 'code' löytyy sijainnista
-                    logger.info(f'code: {location['code']}')
+                    # logger.info(f'code: {location['code']}')
                     code_location = location['code']    # Tehdään code_location-muuttuja, joka sisältää sijainnin koodin joka auttaa tulevaisuudessa estämään virheitä, jos lentokentästä ei ole lentoja
                     # if len(code_location) != 3:
                     #     code_location = 'HEL' #Jos code_location on suurempi kuin 0
