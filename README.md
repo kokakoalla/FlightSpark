@@ -164,6 +164,7 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
+```
 
 2. Reload systemd to apply the new service:
 
