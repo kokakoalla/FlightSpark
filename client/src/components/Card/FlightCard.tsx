@@ -119,7 +119,7 @@ const FlightCard: React.FC<CardProps> = ({
             href={url}
             target="_blank"
           >
-            Valitse
+            Search
           </Button>
         </div>
       </div>

@@ -4,8 +4,8 @@ import axios from "axios";
 import SearchForm from "./SearchForm";
 import FlightList from "./FlightList";
 
-// const API_BASE_URL = "http://localhost:8000/api"; //Määritellään API_BASE_URL, joka on http://localhost:5000/api
-const API_BASE_URL = "https://flightspark.online/api";
+const API_BASE_URL = "http://localhost:8000/api"; //Määritellään API_BASE_URL, joka on http://localhost:5000/api
+// const API_BASE_URL = "https://flightspark.online/api";
 
 interface LocationResponse {
   locations: { code: string; name: string; country: { name: string } }[];
@@ -90,6 +90,8 @@ const FlightSearch: React.FC = () => {
     }
 
     try {
+      setLoading(true);
+
       const [fromCityResponse, toCityResponse] = await Promise.all([
         axios.get<LocationResponse>(`${API_BASE_URL}/locations`, {
           params: { term: fromCity },
@@ -116,6 +118,8 @@ const FlightSearch: React.FC = () => {
     } catch (error) {
       console.error("Error fetching flights:", error);
       setError("Failed to fetch flights. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 

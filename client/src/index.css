@@ -7,11 +7,11 @@ html {
   background-position: left;
   background: radial-gradient(
     circle at top,
-    /* #556ac5 0%,
-    #c24646fa 50% */ 
-    rgb(205, 84, 84) 0%,
+    #ff0606 0%,
+    #7c3b3bfa 50%
+      /* rgb(205, 84, 84) 0%,
     rgb(22, 22, 131) 35%,
-    rgb(34, 130, 149) 100%
+    rgb(34, 130, 149) 100% */
   );
 }
 
