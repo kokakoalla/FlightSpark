@@ -63,18 +63,17 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
             kiwi_data = await fetch_from_kiwi( #Haetaan data Kiwi API:sta
                 session, #Session
                 f'{Config.TEQUILA_ENDPOINT_LOCATION}/locations/radius', #URL
-                params={'lat': latitude, 'lon': longitude, 'radius': 250}, #Parametrit
+                params={'lat': latitude, 'lon': longitude, 'radius': 500}, #Parametrit
                 headers={'apikey': Config.API_KEY}) #Otsikot
             if 'locations' in kiwi_data:    # Jos 'locations' löytyy kiwi_datasta
                 location = kiwi_data['locations'][0] # Otetaan ensimmäinen sijainti
                 logger.info(f"Location: {location}") #Tulostetaan lokitiedot
                 if 'code' in location:               # Jos 'code' löytyy sijainnista
-                    # logger.info(f'code: {location['code']}')
                     code_location = location['code']    # Tehdään code_location-muuttuja, joka sisältää sijainnin koodin joka auttaa tulevaisuudessa estämään virheitä, jos lentokentästä ei ole lentoja
+                    logger.info(f'Location code: {code_location}')
                     # if len(code_location) != 3:
                     #     code_location = 'HEL' #Jos code_location on suurempi kuin 0
-                    code_location = 'HEL'
-                    logging.info(f"Location code: {code_location}") #Tulostetaan lokitiedot
+                    # code_location = 'HEL'
                     con = await get_database_connection() #Haetaan tietokannan yhteys
                     try:
                         db_data = await fetch_search_history(con, code_location)    
@@ -84,19 +83,20 @@ async def receive_location(): #Määritellään asynkroninen funktio receive_loc
                         else:      # Tarvitsemme 3 korttia
                             date_from = new_date_plus_10 #  Lentojen päivämäärä 10 päivää eteenpäin
                             date_to = new_date_plus_20  #  Lentojen päivämäärä 20 päivää eteenpäin (haku 10 -20 pv eteenpäin)
-                            logger.info(f"Fetching data from Kiwi API for location: {code }") #Tulostetaan lokitiedot
+                            logger.info(f"Fetching data from Kiwi API for location: {code_location}") #Tulostetaan lokitiedot
                             kiwi_data = await fetch_from_kiwi(
                                 session,
                                 f'{Config.TEQUILA_ENDPOINT_LOCATION}/v2/search',
-                                params={'fly_from': code_location, 'date_from': date_from, 'date_to': date_to, 'partner_market': 'us', 'partner': 'picky', 'curr': 'USD', 'limit': 10},
+                                params={'fly_from': code_location, 'date_from': date_from, 'date_to': date_to, 'limit': 10},
                                 headers={'apikey': Config.API_KEY}  #Haetaan satunnaisia lentoja Kiwi API:sta (10-20 pv eteenpäin)
                             )
-                            data = kiwi_data['data'] # Talleneteaan data-muuttujaan data Kiwi API:sta
+                            data = kiwi_data.get('data', []) # Talleneteaan data-muuttujaan data Kiwi API:sta
+                            logger.info(f"Data from kiwi: {data}")
 
              
                         await save_fligth_data(con, data)  #Tallenetaan data tietokantaan
                         db_data = await fetch_search_history(con, code_location) #Haetaan tietueet tietokannasta
-                        logger.info(f"db_data: {db_data}") 
+                        logger.info(f"db_data_last: {db_data}") 
                         return jsonify(db_data) #Palautetaan tietueet JSON-muodossa
                     finally:
                         await con.close()

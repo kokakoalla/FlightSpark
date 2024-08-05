@@ -21,7 +21,6 @@ def create_app(): #Määritellään funktio, joka luo sovelluksen
 
     app = cors(app, allow_origin="*")
 
-    # app = Quart(__name__) #Luodaan Quart-sovellus
     app.static_folder = '/var/www/html/dist'
     
     app.register_blueprint(location_bp) #Rekisteröidään reititys location_bp:sta
