@@ -213,3 +213,19 @@ npm run dev
 ## Contribution
 
 Contributions are welcome! Please create a pull request or open an issue to discuss.
+
+## Documentation Sources
+
+https://quart.palletsprojects.com/en/latest/
+https://docs.aiohttp.org/en/stable/
+https://pypi.org/project/asyncpg/0.5.2/
+https://tailwindcss.com/
+https://pypi.org/project/asyncpg/0.5.2/
+https://vitejs.dev/
+https://nginx.org/en/docs/
+https://react.dev/learn
+https://www.postgresql.org/docs/current/
+
+
+
+
